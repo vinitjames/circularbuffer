@@ -21,6 +21,8 @@ public:
 	
 
 private:
+	void _increment_stateholders();
+	void _decrement_stateholders();
 	mutable std::mutex _mtx;
 	std::unique_ptr<T[]> _buff;
 	size_t _head = 0;
@@ -69,6 +71,38 @@ void  CircularBuffer<T>::reset(){
 	_full = false;
 }
 
+template<typename T> 
+bool CircularBuffer<T>::push_back(const T& data){
+	std::lock_guard<std::mutex> _lck(_mtx);
+	_buff[_head] = data;
+	_increment_stateholders();
+	return true;
+}
+
+template<typename T>
+inline 
+void CircularBuffer<T>::_increment_stateholders(){
+	if(_full)
+		_tail = (_tail + 1)%_max_size;
+	_head = (_head + 1)%_max_size;
+	_full = (_head == _tail);
+}
+
+template<typename T>
+inline 
+bool CircularBuffer<T>::pop_back(){
+	
+	_decrement_stateholders();
+	return true;
+}
+
+template<typename T>
+inline 
+void CircularBuffer<T>::_decrement_stateholders(){
+	
+	_full = false;
+	_tail = (_tail + 1)%_max_size;
+}
 
 
 
