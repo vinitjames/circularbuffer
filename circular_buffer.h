@@ -104,7 +104,24 @@ void CircularBuffer<T>::_decrement_stateholders(){
 	_tail = (_tail + 1)%_max_size;
 }
 
+template<typename T>
+inline 
+T& CircularBuffer<T>::operator[](size_t index) {
+	if((index<0)&&(index>_max_size))
+		throw std::out_of_range("Index is out of Range of buffer size");
+	index += _tail+index;
+	index %= _max_size;
+	return _buff[index];
+}
 
-
+template<typename T>
+inline 
+const T& CircularBuffer<T>::operator[](size_t index) const {
+	if((index<0)&&(index>_max_size))
+		throw std::out_of_range("Index is out of Range of buffer size");
+	index += _tail+index;
+	index %= _max_size;
+	return _buff[index];
+}
 
 
