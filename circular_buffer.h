@@ -16,10 +16,18 @@ public:
 	size_t capacity() const ;
 	size_t size() const;
 	void reset();
+	size_t buffer_size() const {return sizeof(T)*_max_size;};
 	const T& operator[](size_t index) const;
 	T& operator[](size_t index);
 	
-
+	typedef T value_type;
+	typedef T* pointer;
+	typedef const T* const_pointer;
+	typedef T& reference;
+	typedef const T& const_reference;
+	typedef size_t size_type;
+	typedef ptrdiff_t difference_type;
+	
 private:
 	void _increment_stateholders();
 	void _decrement_stateholders();
@@ -107,7 +115,7 @@ void CircularBuffer<T>::_decrement_stateholders(){
 template<typename T>
 inline 
 T& CircularBuffer<T>::operator[](size_t index) {
-	if((index<0)&&(index>_max_size))
+	if((index<0)||(index>_max_size))
 		throw std::out_of_range("Index is out of Range of buffer size");
 	index += _tail+index;
 	index %= _max_size;
@@ -117,7 +125,7 @@ T& CircularBuffer<T>::operator[](size_t index) {
 template<typename T>
 inline 
 const T& CircularBuffer<T>::operator[](size_t index) const {
-	if((index<0)&&(index>_max_size))
+	if((index<0)||(index>_max_size))
 		throw std::out_of_range("Index is out of Range of buffer size");
 	index += _tail+index;
 	index %= _max_size;
