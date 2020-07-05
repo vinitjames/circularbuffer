@@ -5,20 +5,6 @@
 template<typename T>
 class CircularBuffer {
 public:
-	explicit CircularBuffer(size_t size)
-		:_buff{std::unique_ptr<T[]>(new T[size])}, _max_size{size}{}
-
-	bool push_back(const T& data);
-	bool pop_back();
-	bool pop_front();
-	bool empty() const ;
-	bool full() const ;
-	size_t capacity() const ;
-	size_t size() const;
-	void reset();
-	size_t buffer_size() const {return sizeof(T)*_max_size;};
-	const T& operator[](size_t index) const;
-	T& operator[](size_t index);
 	
 	typedef T value_type;
 	typedef T* pointer;
@@ -28,14 +14,35 @@ public:
 	typedef size_t size_type;
 	typedef ptrdiff_t difference_type;
 	
+	explicit CircularBuffer(size_t size)
+		:_buff{std::unique_ptr<T[]>(new T[size])}, _max_size{size}{}
+
+	void push_back(const T& data);
+	void pop_back();
+	void pop_front();
+	reference front();
+	reference back(); 
+	const_reference front() const; 
+	const_reference back() const;
+	void clear();
+	bool empty() const ;
+	bool full() const ;
+	size_type capacity() const ;
+	size_type size() const;
+	size_type buffer_size() const {return sizeof(T)*_max_size;};
+	const_reference operator[](size_t index) const;
+	reference operator[](size_t index);
+	
+	
+	
 private:
-	void _increment_stateholders();
-	void _decrement_stateholders();
+	void _increment_bufferstate();
+	void _decrement_bufferstate();
 	mutable std::mutex _mtx;
 	std::unique_ptr<T[]> _buff;
-	size_t _head = 0;
-	size_t _tail = 0;
-	size_t _max_size = 0;
+	size_type _head = 0;
+	size_type _tail = 0;
+	size_type _max_size = 0;
 	bool _full = false;
 };
 
@@ -53,13 +60,21 @@ bool CircularBuffer<T>::empty() const{
 
 template<typename T>
 inline 
-size_t CircularBuffer<T>::capacity() const{
+typename CircularBuffer<T>::size_type CircularBuffer<T>::capacity() const{
 	return _max_size;
 }
 
 template<typename T>
 inline 
-size_t CircularBuffer<T>::size() const{
+void  CircularBuffer<T>::clear(){
+	std::lock_guard<std::mutex> _lck(_mtx);
+	_head = _tail = _max_size = 0;
+	_full = false;
+}
+
+template<typename T>
+inline 
+typename CircularBuffer<T>::size_type CircularBuffer<T>::size() const{
 	std::lock_guard<std::mutex> _lck(_mtx);
 	if(_full)
 		return _max_size;
@@ -72,24 +87,51 @@ size_t CircularBuffer<T>::size() const{
 }
 
 template<typename T>
-inline 
-void  CircularBuffer<T>::reset(){
+inline
+typename CircularBuffer<T>::reference CircularBuffer<T>::front() {
 	std::lock_guard<std::mutex> _lck(_mtx);
-	_head = _tail = 0;
-	_full = false;
+	if(empty())
+		throw std::length_error("front function called on empty buffer");
+	return _buff[_tail];
+}
+
+template<typename T>
+inline
+typename CircularBuffer<T>::reference CircularBuffer<T>::back() {
+	std::lock_guard<std::mutex> _lck(_mtx);
+	if(empty())
+		throw std::length_error("back function called on empty buffer");
+	return _buff[_head];
+}
+
+template<typename T>
+inline
+typename CircularBuffer<T>::const_reference CircularBuffer<T>::front() const{
+	std::lock_guard<std::mutex> _lck(_mtx);
+	if(empty())
+		throw std::length_error("front function called on empty buffer");
+	return _buff[_tail];
+}
+
+template<typename T>
+inline
+typename CircularBuffer<T>::const_reference CircularBuffer<T>::back() const{
+	std::lock_guard<std::mutex> _lck(_mtx);
+	if(empty())
+		throw std::length_error("back function called on empty buffer");
+	return _buff[_tail];
 }
 
 template<typename T> 
-bool CircularBuffer<T>::push_back(const T& data){
+void CircularBuffer<T>::push_back(const T& data){
 	std::lock_guard<std::mutex> _lck(_mtx);
 	_buff[_head] = data;
-	_increment_stateholders();
-	return true;
+	_increment_bufferstate();
 }
 
 template<typename T>
 inline 
-void CircularBuffer<T>::_increment_stateholders(){
+void CircularBuffer<T>::_increment_bufferstate(){
 	if(_full)
 		_tail = (_tail + 1)%_max_size;
 	_head = (_head + 1)%_max_size;
@@ -98,15 +140,16 @@ void CircularBuffer<T>::_increment_stateholders(){
 
 template<typename T>
 inline 
-bool CircularBuffer<T>::pop_back(){
-	
-	_decrement_stateholders();
-	return true;
+void CircularBuffer<T>::pop_back(){
+	std::lock_guard<std::mutex> _lck(_mtx);
+	if(empty())
+		throw std::length_error("pop_back called on empty buffer");
+	_decrement_bufferstate();
 }
 
 template<typename T>
 inline 
-void CircularBuffer<T>::_decrement_stateholders(){
+void CircularBuffer<T>::_decrement_bufferstate(){
 	
 	_full = false;
 	_tail = (_tail + 1)%_max_size;
@@ -114,7 +157,7 @@ void CircularBuffer<T>::_decrement_stateholders(){
 
 template<typename T>
 inline 
-T& CircularBuffer<T>::operator[](size_t index) {
+typename CircularBuffer<T>::reference CircularBuffer<T>::operator[](size_t index) {
 	if((index<0)||(index>_max_size))
 		throw std::out_of_range("Index is out of Range of buffer size");
 	index += _tail+index;
@@ -124,7 +167,7 @@ T& CircularBuffer<T>::operator[](size_t index) {
 
 template<typename T>
 inline 
-const T& CircularBuffer<T>::operator[](size_t index) const {
+typename CircularBuffer<T>::const_reference CircularBuffer<T>::operator[](size_t index) const {
 	if((index<0)||(index>_max_size))
 		throw std::out_of_range("Index is out of Range of buffer size");
 	index += _tail+index;
