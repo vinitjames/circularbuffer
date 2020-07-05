@@ -1,1 +1,1 @@
-#A simple, general purpose circular buffer in C++
+#A simple, general purpose STL style circular buffer in C++
