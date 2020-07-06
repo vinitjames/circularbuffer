@@ -1,11 +1,12 @@
 #include <iostream>
 #include <mutex>
 #include <memory>
+#include <iterator>
 
 template<typename T>
 class CircularBuffer {
 public:
-	
+	template <bool isConst> class BufferIterator;
 	typedef T value_type;
 	typedef T* pointer;
 	typedef const T* const_pointer;
@@ -13,11 +14,14 @@ public:
 	typedef const T& const_reference;
 	typedef size_t size_type;
 	typedef ptrdiff_t difference_type;
+	typedef BufferIterator<false> iterator;
+	typedef BufferIterator<true> const_iterator;
+	
 	
 	explicit CircularBuffer(size_t size)
 		:_buff{std::unique_ptr<T[]>(new T[size])}, _max_size{size}{}
 
-	void push_back(const T& data);
+	void push_back(const value_type& data);
 	void pop_front();
 	reference front();
 	reference back(); 
@@ -29,8 +33,13 @@ public:
 	size_type capacity() const ;
 	size_type size() const;
 	size_type buffer_size() const {return sizeof(T)*_max_size;};
-	const_reference operator[](size_t index) const;
-	reference operator[](size_t index);
+	const_reference operator[](size_type index) const;
+	reference operator[](size_type index);
+
+	iterator begin();
+	const_iterator begin() const;
+	iterator end();
+	const_iterator end() const;
 	
 	
 private:
@@ -42,6 +51,15 @@ private:
 	size_type _tail = 0;
 	size_type _max_size = 0;
 	bool _full = false;
+
+    template<bool isConst = false>
+	class BufferIterator{
+	public:
+		typedef std::random_access_iterator_tag iterator_type;
+		
+	private:
+		
+	};
 };
 
 template<typename T>
