@@ -18,7 +18,6 @@ public:
 		:_buff{std::unique_ptr<T[]>(new T[size])}, _max_size{size}{}
 
 	void push_back(const T& data);
-	void pop_back();
 	void pop_front();
 	reference front();
 	reference back(); 
@@ -32,7 +31,6 @@ public:
 	size_type buffer_size() const {return sizeof(T)*_max_size;};
 	const_reference operator[](size_t index) const;
 	reference operator[](size_t index);
-	
 	
 	
 private:
@@ -101,7 +99,7 @@ typename CircularBuffer<T>::reference CircularBuffer<T>::back() {
 	std::lock_guard<std::mutex> _lck(_mtx);
 	if(empty())
 		throw std::length_error("back function called on empty buffer");
-	return _buff[_head];
+	return _buff[_head-1];
 }
 
 template<typename T>
@@ -119,7 +117,7 @@ typename CircularBuffer<T>::const_reference CircularBuffer<T>::back() const{
 	std::lock_guard<std::mutex> _lck(_mtx);
 	if(empty())
 		throw std::length_error("back function called on empty buffer");
-	return _buff[_tail];
+	return _buff[_head - 1];
 }
 
 template<typename T> 
@@ -140,7 +138,7 @@ void CircularBuffer<T>::_increment_bufferstate(){
 
 template<typename T>
 inline 
-void CircularBuffer<T>::pop_back(){
+void CircularBuffer<T>::pop_front(){
 	std::lock_guard<std::mutex> _lck(_mtx);
 	if(empty())
 		throw std::length_error("pop_back called on empty buffer");
@@ -150,7 +148,6 @@ void CircularBuffer<T>::pop_back(){
 template<typename T>
 inline 
 void CircularBuffer<T>::_decrement_bufferstate(){
-	
 	_full = false;
 	_tail = (_tail + 1)%_max_size;
 }
@@ -160,7 +157,7 @@ inline
 typename CircularBuffer<T>::reference CircularBuffer<T>::operator[](size_t index) {
 	if((index<0)||(index>_max_size))
 		throw std::out_of_range("Index is out of Range of buffer size");
-	index += _tail+index;
+	index += _tail;
 	index %= _max_size;
 	return _buff[index];
 }
@@ -170,7 +167,7 @@ inline
 typename CircularBuffer<T>::const_reference CircularBuffer<T>::operator[](size_t index) const {
 	if((index<0)||(index>_max_size))
 		throw std::out_of_range("Index is out of Range of buffer size");
-	index += _tail+index;
+	index += _tail;
 	index %= _max_size;
 	return _buff[index];
 }
