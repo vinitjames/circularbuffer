@@ -2,11 +2,12 @@
 #include <mutex>
 #include <memory>
 #include <iterator>
+#include <type_traits>
 
 template<typename T>
 class CircularBuffer {
-public:
-	template <bool isConst> class BufferIterator;
+private:
+	
 	typedef T value_type;
 	typedef T* pointer;
 	typedef const T* const_pointer;
@@ -14,8 +15,12 @@ public:
 	typedef const T& const_reference;
 	typedef size_t size_type;
 	typedef ptrdiff_t difference_type;
+	template <bool isConst>
+	struct BufferIterator;
 	typedef BufferIterator<false> iterator;
 	typedef BufferIterator<true> const_iterator;
+
+public:
 	
 	
 	explicit CircularBuffer(size_t size)
@@ -51,14 +56,64 @@ private:
 	size_type _tail = 0;
 	size_type _max_size = 0;
 	bool _full = false;
-
+	
     template<bool isConst = false>
-	class BufferIterator{
+	class  BufferIterator{
 	public:
 		typedef std::random_access_iterator_tag iterator_type;
+		typedef typename std::conditional<isConst, const T&, T&>::type reference;
+		typedef typename std::conditional<isConst, const T*, T*>::type pointer;
+		typedef CircularBuffer*  cbuf_pointer;
 		
 	private:
-		
+		cbuf_pointer ptrToBuffer;
+		size_type _offset;
+		size_type _index;
+		bool _reverse;
+	public:
+		BufferIterator()
+			:ptrToBuffer{nullptr}, _offset{0}, _index{0}, _reverse{false}{}
+
+		BufferIterator(const BufferIterator<false>& it)
+			:ptrToBuffer{it.ptrToBuffer},
+			 _offset{it._offset},
+			 _index{it._index},
+			 _reverse{it._reverse}{}
+
+		reference operator*(){
+			if(_reverse)
+				return (*ptrToBuffer)[(ptrToBuffer->size() + _offset - _index)%ptrToBuffer->size()];
+			return (*ptrToBuffer)[(_offset + _index)%ptrToBuffer->size()];
+		}
+
+		pointer  operator->() { return &(operator*()); }
+
+		reference operator[](size_type index){
+			this->_index += index;
+			return this->operator*();
+		}
+
+		BufferIterator& operator++(){
+			++_index;
+			return *this;
+		}
+
+		BufferIterator operator++(int){
+			BufferIterator iter = *this;
+			++_index;
+			return iter;
+		}
+
+		BufferIterator& operator--(){
+			--_index;
+			return *this;
+		}
+
+		BufferIterator operator--(int){
+			BufferIterator iter = *this;
+			--_index;
+			return iter;
+		}
 	};
 };
 
