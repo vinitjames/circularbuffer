@@ -60,10 +60,17 @@ int main(int argc, char *argv[])
 	std::cout<<"Checking front function  "<<test_stringbuf.front()<<"\n";
 	std::cout<<"Checking back function  "<<test_stringbuf.back()<<"\n";
 	test_stringbuf.pop_front();
-	test_stringbuf.pop_front();
 	std::cout<<"Checking length of buffer after modification "<<test_stringbuf.size()<<"\n";
 	std::cout<<"Checking front function  "<<test_stringbuf.front()<<"\n";
 	std::cout<<"Checking back function  "<<test_stringbuf.back()<<"\n";
+	
+	std::cout<<"Checking iterator function\n";
+	auto it = test_stringbuf.begin();
+	
+	std::cout<<"Checking deference * operator "<<*it<<"\n";
+	std::cout<<"Checking deference ++ operator "<<*(++it)<<"\n";
+	std::cout<<"Checking deference -- operator "<<*(--it)<<"\n";
+	
 	//while(true){}
     return 0;
 }

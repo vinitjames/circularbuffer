@@ -60,17 +60,17 @@ private:
     template<bool isConst = false>
 	class  BufferIterator{
 	public:
+		
 		typedef std::random_access_iterator_tag iterator_type;
 		typedef typename std::conditional<isConst, const T&, T&>::type reference;
 		typedef typename std::conditional<isConst, const T*, T*>::type pointer;
 		typedef CircularBuffer*  cbuf_pointer;
 		
-	private:
 		cbuf_pointer _ptrToBuffer;
 		size_type _offset;
 		size_type _index;
 		bool _reverse;
-	public:
+
 		BufferIterator()
 			:_ptrToBuffer{nullptr}, _offset{0}, _index{0}, _reverse{false}{}
 		
@@ -83,8 +83,8 @@ private:
 
 		reference operator*(){
 			if(_reverse)
-				return (*_ptrToBuffer)[(_ptrToBuffer->size() + _offset - _index)%_ptrToBuffer->size()];
-			return (*_ptrToBuffer)[(_offset + _index)%_ptrToBuffer->size()];
+				return (*_ptrToBuffer)[(_ptrToBuffer->size() - _index)];
+			return (*_ptrToBuffer)[_index];
 		}
 
 		pointer  operator->() { return &(operator*()); }
@@ -247,7 +247,6 @@ typename CircularBuffer<T>::const_reference CircularBuffer<T>::operator[](size_t
 	index %= _max_size;
 	return _buff[index];
 }
-
 
 template<typename T>
 inline 
