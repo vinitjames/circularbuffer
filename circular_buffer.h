@@ -66,24 +66,25 @@ private:
 		typedef CircularBuffer*  cbuf_pointer;
 		
 	private:
-		cbuf_pointer ptrToBuffer;
+		cbuf_pointer _ptrToBuffer;
 		size_type _offset;
 		size_type _index;
 		bool _reverse;
 	public:
 		BufferIterator()
-			:ptrToBuffer{nullptr}, _offset{0}, _index{0}, _reverse{false}{}
+			:_ptrToBuffer{nullptr}, _offset{0}, _index{0}, _reverse{false}{}
+		
 
 		BufferIterator(const BufferIterator<false>& it)
-			:ptrToBuffer{it.ptrToBuffer},
+			:_ptrToBuffer{it._ptrToBuffer},
 			 _offset{it._offset},
 			 _index{it._index},
 			 _reverse{it._reverse}{}
 
 		reference operator*(){
 			if(_reverse)
-				return (*ptrToBuffer)[(ptrToBuffer->size() + _offset - _index)%ptrToBuffer->size()];
-			return (*ptrToBuffer)[(_offset + _index)%ptrToBuffer->size()];
+				return (*_ptrToBuffer)[(_ptrToBuffer->size() + _offset - _index)%_ptrToBuffer->size()];
+			return (*_ptrToBuffer)[(_offset + _index)%_ptrToBuffer->size()];
 		}
 
 		pointer  operator->() { return &(operator*()); }
@@ -113,6 +114,8 @@ private:
 			BufferIterator iter = *this;
 			--_index;
 			return iter;
+
+		
 		}
 	};
 };
@@ -246,3 +249,50 @@ typename CircularBuffer<T>::const_reference CircularBuffer<T>::operator[](size_t
 }
 
 
+template<typename T>
+inline 
+typename CircularBuffer<T>::iterator CircularBuffer<T>::begin() {
+	std::lock_guard<std::mutex> _lck(_mtx);
+	iterator iter;
+	iter._ptrToBuffer = this;
+	iter._offset = _tail;
+	iter._index = 0;
+	iter._reverse = false;
+	return iter;
+}
+
+template<typename T>
+inline 
+typename CircularBuffer<T>::const_iterator CircularBuffer<T>::begin() const{
+	std::lock_guard<std::mutex> _lck(_mtx);
+	iterator iter;
+	iter._ptrToBuffer = this;
+	iter._offset = _tail;
+	iter._index = 0;
+	iter._reverse = false;
+	return iter;
+}
+
+template<typename T>
+inline 
+typename CircularBuffer<T>::iterator CircularBuffer<T>::end() {
+	std::lock_guard<std::mutex> _lck(_mtx);
+	iterator iter;
+	iter._ptrToBuffer = this;
+	iter._offset = _tail;
+	iter._index = size();
+	iter._reverse = false;
+	return iter;
+}
+
+template<typename T>
+inline 
+typename CircularBuffer<T>::const_iterator CircularBuffer<T>::end() const{
+	std::lock_guard<std::mutex> _lck(_mtx);
+	iterator iter;
+	iter._ptrToBuffer = this;
+	iter._offset = _tail;
+	iter._index = size();
+	iter._reverse = false;
+	return iter;
+}
