@@ -1,6 +1,8 @@
 #include "circular_buffer.h"
 #include <iostream>
 #include <string.h>
+#include "gtest/gtest.h"
+
 struct test_struct{
 	int i;
 	static int count ;
@@ -16,10 +18,26 @@ struct test_struct{
 	}
 	};
 
+TEST(CircularBufferTest, SizeTest){
+	CircularBuffer<int> test{5};
+	EXPECT_EQ(5, test.capacity());
+}
+
+TEST(CircularBufferTest, PushBackTest){
+	CircularBuffer<int> test{5};
+	test.push_back(1);
+	test.push_back(2);
+	EXPECT_EQ(1, test.front());
+	EXPECT_EQ(2, test.back());
+	test.pop_front();
+	EXPECT_EQ(2, test.front());
+	EXPECT_EQ(2, test.front());
+	
+}
+
 int test_struct::count =0;
 int main(int argc, char *argv[])
 {   
-	
 	
     CircularBuffer<int> test{5};
 	//std::cout<<"size of data "<<sizeof(data[1].bytes)<<"\n";
@@ -71,6 +89,6 @@ int main(int argc, char *argv[])
 	std::cout<<"Checking deference ++ operator "<<*(++it)<<"\n";
 	std::cout<<"Checking deference -- operator "<<*(--it)<<"\n";
 	
-	//while(true){}
-    return 0;
+	::testing::InitGoogleTest(&argc, argv);
+	return RUN_ALL_TESTS();
 }
