@@ -71,6 +71,10 @@ private:
 		size_type _index;
 		bool _reverse;
 
+		bool _comparable(const BufferIterator& other){
+			return (_ptrToBuffer == other._ptrToBuffer)&&(_reverse == other._reverse);
+		}
+
 		BufferIterator()
 			:_ptrToBuffer{nullptr}, _offset{0}, _index{0}, _reverse{false}{}
 		
@@ -114,9 +118,69 @@ private:
 			BufferIterator iter = *this;
 			--_index;
 			return iter;
+		}	
 
-		
+		friend BufferIterator operator+(BufferIterator lhsiter, difference_type n){
+			lhsiter._index += n;
+			return lhsiter;
 		}
+
+		friend BufferIterator operator+(difference_type n, BufferIterator rhsiter){
+			rhsiter._index += n;
+			return rhsiter;
+		}
+
+		BufferIterator& operator+=(difference_type n){
+			_index += n;
+			return *this;
+		}
+
+		friend BufferIterator operator-(BufferIterator lhsiter, difference_type n){
+			lhsiter._index -= n;
+			return lhsiter;
+		}
+
+		BufferIterator& operator-=(difference_type n){
+			_index -= n;
+			return *this;
+		}
+
+		bool operator==(const BufferIterator& other){
+			if (!_comparable(other))
+				return false;
+			return ((_index == other._index)&&(_offset == other._offset));
+		}
+		
+		bool operator!=(const BufferIterator& other){
+			if (!_comparable(other))
+				return true;
+			return ((_index != other._index)||(_offset != other._offset));
+		}
+
+		bool operator<(const BufferIterator& other){
+			if (!_comparable(other))
+				return false;
+			return ((_index + _offset)<(other._index+other._offset));
+		}
+
+		bool operator>(const BufferIterator& other){
+			if (!_comparable(other))
+				return false;
+			return ((_index + _offset)>(other._index+other._offset));
+		}
+
+		bool operator<=(const BufferIterator& other){
+			if (!_comparable(other))
+				return false;
+			return ((_index + _offset)<=(other._index+other._offset));
+		}
+
+		bool operator>=(const BufferIterator& other){
+			if (!_comparable(other))
+				return false;
+			return ((_index + _offset)>=(other._index+other._offset));
+		}
+		
 	};
 };
 
