@@ -1,3 +1,6 @@
+#ifndef CIRCULAR_BUFFER_H
+#define CIRCULAR_BUFFER_H
+
 #include <iostream>
 #include <mutex>
 #include <memory>
@@ -22,7 +25,6 @@ private:
 
 public:
 	
-	
 	explicit CircularBuffer(size_t size)
 		:_buff{std::unique_ptr<T[]>(new T[size])}, _max_size{size}{}
 
@@ -45,8 +47,7 @@ public:
 	const_iterator begin() const;
 	iterator end();
 	const_iterator end() const;
-	
-	
+		
 private:
 	void _increment_bufferstate();
 	void _decrement_bufferstate();
@@ -54,9 +55,10 @@ private:
 	std::unique_ptr<T[]> _buff;
 	size_type _head = 0;
 	size_type _tail = 0;
+	size_type _size = 0;
 	size_type _max_size = 0;
 	bool _full = false;
-	
+		
     template<bool isConst = false>
 	class  BufferIterator{
 	public:
@@ -74,11 +76,10 @@ private:
 		bool _comparable(const BufferIterator& other){
 			return (_ptrToBuffer == other._ptrToBuffer)&&(_reverse == other._reverse);
 		}
-
+		
 		BufferIterator()
 			:_ptrToBuffer{nullptr}, _offset{0}, _index{0}, _reverse{false}{}
 		
-
 		BufferIterator(const BufferIterator<false>& it)
 			:_ptrToBuffer{it._ptrToBuffer},
 			 _offset{it._offset},
@@ -187,13 +188,15 @@ private:
 template<typename T>
 inline 
 bool CircularBuffer<T>::full() const{
-	return _full;
+	//return _full;
+	return _size == _max_size;
 }
 
 template<typename T>
 inline 
 bool CircularBuffer<T>::empty() const{
-	return (!_full &&(_head == _tail));
+	//return ((!full()) &&(_head == _tail));
+	return _size == 0;
 }
 
 template<typename T>
@@ -206,22 +209,23 @@ template<typename T>
 inline 
 void  CircularBuffer<T>::clear(){
 	std::lock_guard<std::mutex> _lck(_mtx);
-	_head = _tail = _max_size = 0;
-	_full = false;
+	_head = _tail = _size = _max_size = 0;
+	//_full = false;
 }
 
 template<typename T>
 inline 
 typename CircularBuffer<T>::size_type CircularBuffer<T>::size() const{
 	std::lock_guard<std::mutex> _lck(_mtx);
-	if(_full)
+	return _size;
+	/*(if(_full)
 		return _max_size;
 	else{
 		if(_head >= _tail)
 			return _head -_tail;
 		else
 			return _max_size - _tail +_head;
-	}
+			}*/
 }
 
 template<typename T>
@@ -270,8 +274,10 @@ void CircularBuffer<T>::push_back(const T& data){
 template<typename T>
 inline 
 void CircularBuffer<T>::_increment_bufferstate(){
-	if(_full)
+	if(full())
 		_tail = (_tail + 1)%_max_size;
+	else
+		++_size;
 	_head = (_head + 1)%_max_size;
 	_full = (_head == _tail);
 }
@@ -288,7 +294,8 @@ void CircularBuffer<T>::pop_front(){
 template<typename T>
 inline 
 void CircularBuffer<T>::_decrement_bufferstate(){
-	_full = false;
+	//_full = false;
+	--_size;
 	_tail = (_tail + 1)%_max_size;
 }
 
@@ -343,7 +350,7 @@ typename CircularBuffer<T>::iterator CircularBuffer<T>::end() {
 	iterator iter;
 	iter._ptrToBuffer = this;
 	iter._offset = _tail;
-	iter._index = size();
+	iter._index = _size;
 	iter._reverse = false;
 	return iter;
 }
@@ -355,7 +362,9 @@ typename CircularBuffer<T>::const_iterator CircularBuffer<T>::end() const{
 	iterator iter;
 	iter._ptrToBuffer = this;
 	iter._offset = _tail;
-	iter._index = size();
+	iter._index = _size;
 	iter._reverse = false;
 	return iter;
 }
+
+#endif /* CIRCULAR_BUFFER_H */
