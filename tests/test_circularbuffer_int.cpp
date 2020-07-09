@@ -14,6 +14,7 @@ protected:
 
 TEST_F(CircularBufferTest, CapacityTest){
 	EXPECT_EQ(5, test.capacity());
+	EXPECT_FALSE(test.capacity() == 0);
 }
 
 TEST_F(CircularBufferTest, EmptyTest){
@@ -27,6 +28,7 @@ TEST_F(CircularBufferTest, EmptyTest){
 }
 
 TEST_F(CircularBufferTest, PushBackTest){
+	EXPECT_TRUE(test.empty());
 	test.push_back(1);
 	test.push_back(2);
 	EXPECT_EQ(1, test.front());
@@ -37,6 +39,25 @@ TEST_F(CircularBufferTest, PushBackTest){
 	
 }
 
+TEST_F(CircularBufferTest, PopFrontTest){
+	EXPECT_TRUE(test.empty());
+	test.push_back(348789);
+	test.push_back(34824);
+	test.push_back(234892);
+	test.push_back(100929);
+	test.push_back(4878872);
+	EXPECT_TRUE(test.full());
+	while(true){
+		try{
+			test.pop_front();
+		}
+		catch(std::exception& e){
+			EXPECT_TRUE(test.empty());
+			break;
+		}
+	}
+		
+}
 
 TEST_F(CircularBufferTest, SizeTest){
 	EXPECT_EQ(0, test.size());
