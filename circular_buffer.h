@@ -210,7 +210,6 @@ inline
 void  CircularBuffer<T>::clear(){
 	std::lock_guard<std::mutex> _lck(_mtx);
 	_head = _tail = _size = _max_size = 0;
-	//_full = false;
 }
 
 template<typename T>
@@ -218,15 +217,7 @@ inline
 typename CircularBuffer<T>::size_type CircularBuffer<T>::size() const{
 	std::lock_guard<std::mutex> _lck(_mtx);
 	return _size;
-	/*(if(_full)
-		return _max_size;
-	else{
-		if(_head >= _tail)
-			return _head -_tail;
-		else
-			return _max_size - _tail +_head;
-			}*/
-}
+	}
 
 template<typename T>
 inline
@@ -267,6 +258,8 @@ typename CircularBuffer<T>::const_reference CircularBuffer<T>::back() const{
 template<typename T> 
 void CircularBuffer<T>::push_back(const T& data){
 	std::lock_guard<std::mutex> _lck(_mtx);
+	if(full())
+		_buff[_head].~T();
 	_buff[_head] = data;
 	_increment_bufferstate();
 }

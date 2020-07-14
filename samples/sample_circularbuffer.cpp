@@ -6,21 +6,32 @@
 #include "circular_buffer.h"
 #include <iostream>
 #include <string.h>
-#include "gtest/gtest.h"
 
 struct test_struct{
-	int i;
 	static int count ;
 	char* bytes =nullptr; 
 	test_struct(){
-		i=0;
-		bytes = (char*)malloc(10000000);
+		bytes = (char*)malloc(100);
 		std::cout<<"constructing test_struct: "<<count++<<"\n";
 		}
+	test_struct(const test_struct& other){
+		bytes = (char*)malloc(100);
+		memcpy(bytes, other.bytes,100);
+		std::cout<<"copy constructor called for test_struct \n";
+	}
+	
+	test_struct& operator=(const test_struct& other){
+		bytes = (char*)malloc(100);
+		memcpy(bytes, other.bytes,100);
+		std::cout<<"assignment operator called for test_struct \n";
+		return *this;
+	}
+	
 	~test_struct(){
-		std::cout<<"destructing test_struct\n";
+		std::cout<<"destructing test_struct"<<--count<<"\n";
 		free(bytes);
 	}
+	
 
 };
 
@@ -78,6 +89,22 @@ int main(int argc, char *argv[])
 	std::cout<<"Checking deference * operator "<<*it<<"\n";
 	std::cout<<"Checking deference ++ operator "<<*(++it)<<"\n";
 	std::cout<<"Checking deference -- operator "<<*(--it)<<"\n";
+
+	CircularBuffer<test_struct> test_structbuf{5};
+	auto temp_struct = test_struct();
+	test_structbuf.push_back(temp_struct);
+	test_structbuf.push_back(temp_struct);
+	test_structbuf.push_back(temp_struct);
+	test_structbuf.push_back(temp_struct);
+	test_structbuf.push_back(temp_struct);
+	test_structbuf.push_back(temp_struct);
+	test_structbuf.push_back(temp_struct);
+	test_structbuf.push_back(temp_struct);
+	test_structbuf.push_back(temp_struct);
+	test_structbuf.push_back(temp_struct);
+	
+	
+	test_structbuf.pop_front();
 	
 	
 	return 0;
