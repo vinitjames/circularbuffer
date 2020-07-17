@@ -40,8 +40,11 @@ public:
 	size_type capacity() const ;
 	size_type size() const;
 	size_type buffer_size() const {return sizeof(T)*_max_size;};
+	
 	const_reference operator[](size_type index) const;
 	reference operator[](size_type index);
+	const_reference at(size_type index) const;
+	reference at(size_type index);
 
 	iterator begin();
 	const_iterator begin() const;
@@ -287,7 +290,6 @@ void CircularBuffer<T>::pop_front(){
 template<typename T>
 inline 
 void CircularBuffer<T>::_decrement_bufferstate(){
-	//_full = false;
 	--_size;
 	_tail = (_tail + 1)%_max_size;
 }
@@ -295,8 +297,9 @@ void CircularBuffer<T>::_decrement_bufferstate(){
 template<typename T>
 inline 
 typename CircularBuffer<T>::reference CircularBuffer<T>::operator[](size_t index) {
-	if((index<0)||(index>_max_size))
-		throw std::out_of_range("Index is out of Range of buffer size");
+	std::lock_guard<std::mutex> _lck(_mtx);
+	if((index<0)||(index>=_max_size))
+		throw std::out_of_range("Index is out of Range of buffer capacity");
 	index += _tail;
 	index %= _max_size;
 	return _buff[index];
@@ -305,7 +308,29 @@ typename CircularBuffer<T>::reference CircularBuffer<T>::operator[](size_t index
 template<typename T>
 inline 
 typename CircularBuffer<T>::const_reference CircularBuffer<T>::operator[](size_t index) const {
-	if((index<0)||(index>_max_size))
+	std::lock_guard<std::mutex> _lck(_mtx);
+	if((index<0)||(index>=_max_size))
+		throw std::out_of_range("Index is out of Range of buffer capacity");
+	index += _tail;
+	index %= _max_size;
+	return _buff[index];
+}
+
+template<typename T>
+inline 
+typename CircularBuffer<T>::reference CircularBuffer<T>::at(size_t index) {
+	std::lock_guard<std::mutex> _lck(_mtx);
+	if((index<0)||(index>=_size))
+		throw std::out_of_range("Index is out of Range of buffer size");
+	index += _tail;
+	index %= _max_size;
+	return _buff[index];
+}
+
+template<typename T>
+inline 
+typename CircularBuffer<T>::const_reference CircularBuffer<T>::at(size_t index) const {
+	if((index<0)||(index>=_size))
 		throw std::out_of_range("Index is out of Range of buffer size");
 	index += _tail;
 	index %= _max_size;

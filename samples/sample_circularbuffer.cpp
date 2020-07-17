@@ -31,6 +31,10 @@ struct test_struct{
 		std::cout<<"destructing test_struct"<<--count<<"\n";
 		free(bytes);
 	}
+
+	friend std::ostream& operator<<(std::ostream& os, const test_struct& ts){
+		return os<<"test\n";
+	}
 	
 
 };
@@ -91,13 +95,24 @@ int main(int argc, char *argv[])
 	std::cout<<"Checking deference -- operator "<<*(--it)<<"\n";
 
 	CircularBuffer<test_struct> test_structbuf{5};
+	std::cout<<"Checking [] operator"<<test_structbuf[0]<<"\n";
+	
 	auto temp_struct = test_struct();
+	
 	test_structbuf.push_back(temp_struct);
+	std::cout<<"Checking [] operator"<<test_structbuf[1]<<"\n";
+	std::cout<<"Checking at operator"<<test_structbuf.at(0)<<"\n";
+	
 	test_structbuf.push_back(temp_struct);
+	std::cout<<"Checking at operator"<<test_structbuf.at(1)<<"\n";
 	test_structbuf.push_back(temp_struct);
+	std::cout<<"Checking at operator"<<test_structbuf.at(2)<<"\n";
 	test_structbuf.push_back(temp_struct);
+	std::cout<<"Checking at operator"<<test_structbuf.at(3)<<"\n";
 	test_structbuf.push_back(temp_struct);
+	std::cout<<"Checking at operator"<<test_structbuf.at(4)<<"\n";
 	test_structbuf.push_back(temp_struct);
+	std::cout<<"Checking at operator"<<test_structbuf.at(0)<<"\n";
 	test_structbuf.push_back(temp_struct);
 	test_structbuf.push_back(temp_struct);
 	test_structbuf.push_back(temp_struct);
