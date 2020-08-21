@@ -13,7 +13,8 @@ struct test_struct{
 	test_struct(){
 		bytes = (char*)malloc(100);
 		std::cout<<"constructing test_struct: "<<count++<<"\n";
-		}
+	}
+	
 	test_struct(const test_struct& other){
 		bytes = (char*)malloc(100);
 		memcpy(bytes, other.bytes,100);
@@ -28,12 +29,11 @@ struct test_struct{
 	}
 	
 	~test_struct(){
-		std::cout<<"destructing test_struct"<<--count<<"\n";
 		free(bytes);
 	}
 
 	friend std::ostream& operator<<(std::ostream& os, const test_struct& ts){
-		return os<<"test\n";
+		return os<<"\ntest";
 	}
 	
 
@@ -121,6 +121,12 @@ int main(int argc, char *argv[])
 	
 	test_structbuf.pop_front();
 	
+	CircularBuffer<std::string> test_stringbufcopy{test_stringbuf};
+	std::cout<<"Checking  maxsize of copy buffer"<<test_stringbufcopy.capacity()<<"\n";
+	std::cout<<"Checking  size of copy buffer"<<test_stringbufcopy.size()<<"\n";
+	std::cout<<"Checking  [] in copybuffer"<<test_stringbufcopy[1]<<"\n";
+	std::cout<<"Checking maxsize buffer"<<test_structbuf.capacity()<<"\n";
+	std::cout<<"Checking size buffer"<<test_structbuf.size()<<"\n";
 	
 	return 0;
 }
