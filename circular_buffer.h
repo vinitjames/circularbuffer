@@ -31,7 +31,11 @@ public:
 
 	CircularBuffer(const CircularBuffer& other)
 		:_buff{std::unique_ptr<T[]>(new T[other.capacity()])},
-		 _max_size{other.capacity()}{
+		 _max_size{other.capacity()},
+		 _size{other._size},
+		 _head{other._head},
+		 _tail{other._tail},
+		 _full{other._full}{
 			 
 			 std::copy(other.data(), other.data() + _max_size, _buff.get());
 		 }

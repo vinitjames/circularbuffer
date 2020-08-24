@@ -125,8 +125,8 @@ int main(int argc, char *argv[])
 	std::cout<<"Checking  maxsize of copy buffer"<<test_stringbufcopy.capacity()<<"\n";
 	std::cout<<"Checking  size of copy buffer"<<test_stringbufcopy.size()<<"\n";
 	std::cout<<"Checking  [] in copybuffer"<<test_stringbufcopy[1]<<"\n";
-	std::cout<<"Checking maxsize buffer"<<test_structbuf.capacity()<<"\n";
-	std::cout<<"Checking size buffer"<<test_structbuf.size()<<"\n";
+	std::cout<<"Checking maxsize buffer"<<test_stringbuf.capacity()<<"\n";
+	std::cout<<"Checking size buffer"<<test_stringbuf.size()<<"\n";
 	
 	return 0;
 }
