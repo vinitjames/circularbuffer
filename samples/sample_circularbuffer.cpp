@@ -13,7 +13,8 @@ struct test_struct{
 	test_struct(){
 		bytes = (char*)malloc(100);
 		std::cout<<"constructing test_struct: "<<count++<<"\n";
-		}
+	}
+	
 	test_struct(const test_struct& other){
 		bytes = (char*)malloc(100);
 		memcpy(bytes, other.bytes,100);
@@ -28,12 +29,11 @@ struct test_struct{
 	}
 	
 	~test_struct(){
-		std::cout<<"destructing test_struct"<<--count<<"\n";
 		free(bytes);
 	}
 
 	friend std::ostream& operator<<(std::ostream& os, const test_struct& ts){
-		return os<<"test\n";
+		return os<<"\ntest";
 	}
 	
 
@@ -94,6 +94,15 @@ int main(int argc, char *argv[])
 	std::cout<<"Checking deference ++ operator "<<*(++it)<<"\n";
 	std::cout<<"Checking deference -- operator "<<*(--it)<<"\n";
 
+	
+	std::cout<<"Checking iterator for loop  \n";
+	for(auto it:test_stringbuf)
+		std::cout<<"Checking for loop function  "<<it<<"\n";
+
+	std::cout<<"Checking for loop with iterator  \n";
+	for(auto it = test_stringbuf.begin(); it != test_stringbuf.end(); it++)
+		std::cout<<"Checking for loop function  "<<*it<<"\n";
+	
 	CircularBuffer<test_struct> test_structbuf{5};
 	std::cout<<"Checking [] operator"<<test_structbuf[0]<<"\n";
 	
@@ -121,8 +130,14 @@ int main(int argc, char *argv[])
 	
 	test_structbuf.pop_front();
 	
-	
+	CircularBuffer<std::string> test_stringbufcopy{test_stringbuf};
+	std::cout<<"Checking  maxsize of copy buffer"<<test_stringbufcopy.capacity()<<"\n";
+	std::cout<<"Checking  size of copy buffer"<<test_stringbufcopy.size()<<"\n";
+	std::cout<<"Checking  [] in copybuffer"<<test_stringbufcopy[1]<<"\n";
+	std::cout<<"Checking maxsize buffer"<<test_stringbuf.capacity()<<"\n";
+	std::cout<<"Checking size buffer"<<test_stringbuf.size()<<"\n";
 	return 0;
 }
+
 
 

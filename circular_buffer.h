@@ -6,6 +6,7 @@
 #include <memory>
 #include <iterator>
 #include <type_traits>
+#include <algorithm>
 
 template<typename T>
 class CircularBuffer {
@@ -28,6 +29,24 @@ public:
 	explicit CircularBuffer(size_t size)
 		:_buff{std::unique_ptr<T[]>(new T[size])}, _max_size{size}{}
 
+	CircularBuffer(const CircularBuffer& other)
+		:_buff{std::unique_ptr<T[]>(new T[other.capacity()])},
+		 _max_size{other.capacity()},
+		 _size{other._size},
+		 _head{other._head},
+		 _tail{other._tail},
+		 _full{other._full}{
+			 
+			 std::copy(other.data(), other.data() + _max_size, _buff.get());
+		 }
+
+	CircularBuffer& operator=(const CircularBuffer& other){
+		_buff = std::unique_ptr<T[]>(new T[other.capacity()]);
+		_max_size = other.capacity();
+		std::copy(other.data(), other.data() + _max_size, _buff.get());
+		return *this;
+	}
+
 	void push_back(const value_type& data);
 	void pop_front();
 	reference front();
@@ -40,6 +59,7 @@ public:
 	size_type capacity() const ;
 	size_type size() const;
 	size_type buffer_size() const {return sizeof(T)*_max_size;};
+	const_pointer data() const { return _buff.get(); }
 	
 	const_reference operator[](size_type index) const;
 	reference operator[](size_type index);
@@ -56,6 +76,7 @@ private:
 	void _decrement_bufferstate();
 	mutable std::mutex _mtx;
 	std::unique_ptr<T[]> _buff;
+
 	size_type _head = 0;
 	size_type _tail = 0;
 	size_type _size = 0;
@@ -330,6 +351,7 @@ typename CircularBuffer<T>::reference CircularBuffer<T>::at(size_t index) {
 template<typename T>
 inline 
 typename CircularBuffer<T>::const_reference CircularBuffer<T>::at(size_t index) const {
+	std::lock_guard<std::mutex> _lck(_mtx);
 	if((index<0)||(index>=_size))
 		throw std::out_of_range("Index is out of Range of buffer size");
 	index += _tail;
