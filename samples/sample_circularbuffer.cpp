@@ -94,6 +94,15 @@ int main(int argc, char *argv[])
 	std::cout<<"Checking deference ++ operator "<<*(++it)<<"\n";
 	std::cout<<"Checking deference -- operator "<<*(--it)<<"\n";
 
+	
+	std::cout<<"Checking iterator for loop  \n";
+	for(auto it:test_stringbuf)
+		std::cout<<"Checking for loop function  "<<it<<"\n";
+
+	std::cout<<"Checking for loop with iterator  \n";
+	for(auto it = test_stringbuf.begin(); it != test_stringbuf.end(); it++)
+		std::cout<<"Checking for loop function  "<<*it<<"\n";
+	
 	CircularBuffer<test_struct> test_structbuf{5};
 	std::cout<<"Checking [] operator"<<test_structbuf[0]<<"\n";
 	
@@ -127,8 +136,8 @@ int main(int argc, char *argv[])
 	std::cout<<"Checking  [] in copybuffer"<<test_stringbufcopy[1]<<"\n";
 	std::cout<<"Checking maxsize buffer"<<test_stringbuf.capacity()<<"\n";
 	std::cout<<"Checking size buffer"<<test_stringbuf.size()<<"\n";
-	
 	return 0;
 }
+
 
 

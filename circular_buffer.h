@@ -351,6 +351,7 @@ typename CircularBuffer<T>::reference CircularBuffer<T>::at(size_t index) {
 template<typename T>
 inline 
 typename CircularBuffer<T>::const_reference CircularBuffer<T>::at(size_t index) const {
+	std::lock_guard<std::mutex> _lck(_mtx);
 	if((index<0)||(index>=_size))
 		throw std::out_of_range("Index is out of Range of buffer size");
 	index += _tail;
