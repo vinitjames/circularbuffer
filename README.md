@@ -1,4 +1,4 @@
-CircularBuffer_CPP
+CircularBuffer
 ===========
 
 [![Actions Status](https://github.com/vinitjames/circularbuffer_CPP/workflows/Build%20and%20Test/badge.svg)](https://github.com/vinitjames/circularbuffer_CPP/actions)
@@ -20,10 +20,10 @@ Run:
 ```
 git clone https://github.com/vinitjames/circularbuffer_CPP.git
 ```
-# Without CMAKE 
+## Without CMAKE 
 copy circular_buffer.h to your project
 
-# With CMAKE 
+## With CMAKE 
 To locally build and run test run the following commands 
 ```sh
 $ mkdir build
