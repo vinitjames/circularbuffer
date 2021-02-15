@@ -23,10 +23,13 @@ git clone https://github.com/vinitjames/circularbuffer_CPP.git
 # Without CMAKE 
 copy circular_buffer.h to your project
 
-# With CMAKE to run tests
-Run ```mkdir build
-       cd build 
-       cmake ..
-       cmake --build .
-       ctest ``` 
- to compile and run tests.
+# With CMAKE 
+To locally build and run test run the following commands 
+```sh
+$ mkdir build
+$ cd build 
+$ cmake ..
+$ cmake --build .
+$ ctest 
+``` 
+To include in project as a submodule just clone the repo in a subdirectory and use `add_subdirectory()` in the top level `CMakeLists.txt` 
