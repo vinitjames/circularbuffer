@@ -6,3 +6,9 @@ target_link_libraries(sample_circularbuffer
 					  PRIVATE
 					  circularbuffer
 					  )
+
+add_executable(sample_stringbuffer sample_stringbuffer.cpp)
+target_link_libraries(sample_stringbuffer
+					  PRIVATE
+					  circularbuffer
+					  )

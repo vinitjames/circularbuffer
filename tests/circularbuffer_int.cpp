@@ -3,17 +3,18 @@
 #include <string.h>
 #include "gtest/gtest.h"
 
+#define TEST_BUFFER_SIZE 100
 
 class CircularBufferTest : public ::testing::Test{
 	
 protected:
 	
-	CircularBuffer<int> test{5};
+	CircularBuffer<int> test{TEST_BUFFER_SIZE};
 	
 };
 
 TEST_F(CircularBufferTest, CapacityTest){
-	EXPECT_EQ(5, test.capacity());
+	EXPECT_EQ(TEST_BUFFER_SIZE, test.capacity());
 	EXPECT_FALSE(test.capacity() == 0);
 }
 
@@ -24,7 +25,14 @@ TEST_F(CircularBufferTest, EmptyTest){
 	EXPECT_FALSE(test.empty());
 	test.pop_front();
 	test.pop_front();
-	EXPECT_TRUE(test.empty());	
+	EXPECT_TRUE(test.empty());
+	for(int i=0; i<TEST_BUFFER_SIZE; i++)
+		test.push_back(10);
+	EXPECT_FALSE(test.empty());
+	
+	for(int i=0; i<TEST_BUFFER_SIZE; i++)
+		test.pop_front();
+	EXPECT_TRUE(test.empty());
 }
 
 TEST_F(CircularBufferTest, PushBackTest){
@@ -41,11 +49,8 @@ TEST_F(CircularBufferTest, PushBackTest){
 
 TEST_F(CircularBufferTest, PopFrontTest){
 	EXPECT_TRUE(test.empty());
-	test.push_back(348789);
-	test.push_back(34824);
-	test.push_back(234892);
-	test.push_back(100929);
-	test.push_back(4878872);
+	for(int i=0; i<TEST_BUFFER_SIZE; i++)
+		test.push_back(10);
 	EXPECT_TRUE(test.full());
 	while(true){
 		try{
@@ -69,10 +74,20 @@ TEST_F(CircularBufferTest, SizeTest){
 	EXPECT_EQ(test.size(), test.capacity());	
 }
 
-
-int main(int argc, char *argv[])
-{   
-		
-	::testing::InitGoogleTest(&argc, argv);
-	return RUN_ALL_TESTS();
+TEST_F(CircularBufferTest, PushAndPopTest){
+	EXPECT_EQ(0, test.size());
+	for(int i=0; i<TEST_BUFFER_SIZE; i++)
+		test.push_back(i);
+	EXPECT_EQ(TEST_BUFFER_SIZE, test.size());
+	EXPECT_EQ(test.size(), test.capacity());
+	for(int i=0; i<TEST_BUFFER_SIZE - 1; i++)
+		test.pop_front();	
+	EXPECT_EQ(1, test.size());
+	EXPECT_EQ(TEST_BUFFER_SIZE, test.capacity());
+	EXPECT_EQ(test.back(), test.front());
+	EXPECT_EQ(TEST_BUFFER_SIZE - 1, test.front());
+	
 }
+
+
+
