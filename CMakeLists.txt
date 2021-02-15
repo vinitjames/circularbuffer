@@ -11,9 +11,9 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 add_library(${PROJECT_NAME} INTERFACE)
 
 target_include_directories(${PROJECT_NAME} INTERFACE ${${PROJECT_NAME}_SOURCE_DIR})
-
+enable_testing()
+add_subdirectory(samples)
 add_subdirectory(tests)
 
-add_subdirectory(samples)
 
 install(TARGETS circularbuffer DESTINATION lib)
