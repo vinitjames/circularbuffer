@@ -1,9 +1,7 @@
 CircularBuffer
 ===========
 
-[![Actions Status](https://github.com/vinitjames/circularbuffer_CPP/workflows/Build%20and%20Test/badge.svg)](https://github.com/vinitjames/circularbuffer_CPP/actions)
-
-[![MIT License](https://img.shields.io/github/license/vinitjames/circularbuffer)](https://github.com/vinitjames/circularbuffer/blob/master/LICENSE)
+[![Actions Status](https://github.com/vinitjames/circularbuffer_CPP/workflows/Build%20and%20Test/badge.svg)](https://github.com/vinitjames/circularbuffer_CPP/actions) &nbsp; [![MIT License](https://img.shields.io/github/license/vinitjames/circularbuffer?color=blue)](https://github.com/vinitjames/circularbuffer/blob/master/LICENSE)
 ## About
 circularbuffer_CPP is a simple, general purpose STL style [circularbuffer](https://en.wikipedia.org/wiki/Circular_buffer) implementation in C++.
 
