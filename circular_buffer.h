@@ -7,6 +7,7 @@
 #include <iterator>
 #include <type_traits>
 #include <algorithm>
+#include <utility>
 
 template<typename T>
 class CircularBuffer {
@@ -30,20 +31,56 @@ public:
 		:_buff{std::unique_ptr<T[]>(new T[size])}, _max_size{size}{}
 
 	CircularBuffer(const CircularBuffer& other)
-		:_buff{std::unique_ptr<T[]>(new T[other.capacity()])},
-		 _max_size{other.capacity()},
+		:_buff{std::unique_ptr<T[]>(new T[other._max_size])},
+		 _max_size{other._max_size},
 		 _size{other._size},
 		 _head{other._head},
-		 _tail{other._tail},
-		 _full{other._full}{
-			 
+		 _tail{other._tail}{
 			 std::copy(other.data(), other.data() + _max_size, _buff.get());
 		 }
 
+	
 	CircularBuffer& operator=(const CircularBuffer& other){
-		_buff = std::unique_ptr<T[]>(new T[other.capacity()]);
-		_max_size = other.capacity();
-		std::copy(other.data(), other.data() + _max_size, _buff.get());
+		if ( this != &other){
+			_buff.reset(new T[other._max_size]);
+			_max_size = other._max_size;
+			_size = other._size;
+			_head = other._head;
+			_tail = other._tail;
+			std::copy(other.data(), other.data() + _max_size, _buff.get());
+		}
+		return *this;
+	}
+
+	CircularBuffer(CircularBuffer&& other) noexcept
+		:_buff{std::move(other._buff)},
+		 _max_size{other._max_size},
+		 _size{other._size},
+		 _head{other._head},
+		 _tail{other._tail}{
+
+		other._buff = nullptr;
+		other._max_size = 0;
+		other._size = 0;
+		other._head = 0;
+		other._tail = 0;
+	}
+
+	
+	CircularBuffer& operator=(CircularBuffer&& other) noexcept{
+		if ( this != &other){
+			_buff = std::move(other._buff);
+			_max_size = other._max_size;
+			_size = other._size;
+			_head = other._head;
+			_tail = other._tail;
+			
+			other._buff = nullptr;
+			other._max_size = 0;
+			other._size = 0;
+			other._head = 0;
+			other._tail = 0;			
+		}
 		return *this;
 	}
 
@@ -81,10 +118,9 @@ private:
 	size_type _tail = 0;
 	size_type _size = 0;
 	size_type _max_size = 0;
-	bool _full = false;
 		
     template<bool isConst = false>
-	class  BufferIterator{
+	struct  BufferIterator{
 	public:
 		
 		typedef std::random_access_iterator_tag iterator_type;
@@ -212,14 +248,12 @@ private:
 template<typename T>
 inline 
 bool CircularBuffer<T>::full() const{
-	//return _full;
 	return _size == _max_size;
 }
 
 template<typename T>
 inline 
 bool CircularBuffer<T>::empty() const{
-	//return ((!full()) &&(_head == _tail));
 	return _size == 0;
 }
 
@@ -258,7 +292,6 @@ typename CircularBuffer<T>::reference CircularBuffer<T>::back() {
 	std::lock_guard<std::mutex> _lck(_mtx);
 	if(empty())
 		throw std::length_error("back function called on empty buffer");
-	//return _buff[_head - 1];
 	return _head == 0 ? _buff[_max_size - 1] : _buff[_head - 1];
 }
 
@@ -277,7 +310,6 @@ typename CircularBuffer<T>::const_reference CircularBuffer<T>::back() const{
 	std::lock_guard<std::mutex> _lck(_mtx);
 	if(empty())
 		throw std::length_error("back function called on empty buffer");
-	//return _buff[_head - 1];
 	return _head == 0 ? _buff[_max_size - 1] : _buff[_head - 1];
 }
 
