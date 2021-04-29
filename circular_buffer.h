@@ -28,10 +28,10 @@ private:
 public:
 	
 	explicit CircularBuffer(size_t size)
-		:_buff{std::unique_ptr<T[]>(new T[size])}, _max_size{size}{}
+		:_buff{std::unique_ptr<T[]>(new value_type[size])}, _max_size{size}{}
 
 	CircularBuffer(const CircularBuffer& other)
-		:_buff{std::unique_ptr<T[]>(new T[other._max_size])},
+		:_buff{std::unique_ptr<T[]>(new value_type[other._max_size])},
 		 _max_size{other._max_size},
 		 _size{other._size},
 		 _head{other._head},
@@ -42,7 +42,7 @@ public:
 	
 	CircularBuffer& operator=(const CircularBuffer& other){
 		if ( this != &other){
-			_buff.reset(new T[other._max_size]);
+			_buff.reset(new value_type[other._max_size]);
 			_max_size = other._max_size;
 			_size = other._size;
 			_head = other._head;
@@ -85,6 +85,7 @@ public:
 	}
 
 	void push_back(const value_type& data);
+	void push_back(value_type&& data) noexcept;
 	void pop_front();
 	reference front();
 	reference back(); 
@@ -95,7 +96,7 @@ public:
 	bool full() const ;
 	size_type capacity() const ;
 	size_type size() const;
-	size_type buffer_size() const {return sizeof(T)*_max_size;};
+	size_type buffer_size() const {return sizeof(value_type)*_max_size;};
 	const_pointer data() const { return _buff.get(); }
 	
 	const_reference operator[](size_type index) const;
@@ -112,7 +113,7 @@ private:
 	void _increment_bufferstate();
 	void _decrement_bufferstate();
 	mutable std::mutex _mtx;
-	std::unique_ptr<T[]> _buff;
+	std::unique_ptr<value_type[]> _buff;
 
 	size_type _head = 0;
 	size_type _tail = 0;
@@ -124,8 +125,8 @@ private:
 	public:
 		
 		typedef std::random_access_iterator_tag iterator_type;
-		typedef typename std::conditional<isConst, const T&, T&>::type reference;
-		typedef typename std::conditional<isConst, const T*, T*>::type pointer;
+		typedef typename std::conditional<isConst, const value_type&, value_type&>::type reference;
+		typedef typename std::conditional<isConst, const value_type*, value_type*>::type pointer;
 		typedef CircularBuffer*  cbuf_pointer;
 		
 		cbuf_pointer _ptrToBuffer;
@@ -313,7 +314,8 @@ typename CircularBuffer<T>::const_reference CircularBuffer<T>::back() const{
 	return _head == 0 ? _buff[_max_size - 1] : _buff[_head - 1];
 }
 
-template<typename T> 
+template<typename T>
+inline
 void CircularBuffer<T>::push_back(const T& data){
 	std::lock_guard<std::mutex> _lck(_mtx);
 	//if(full())
@@ -321,6 +323,15 @@ void CircularBuffer<T>::push_back(const T& data){
 	_buff[_head] = data;
 	_increment_bufferstate();
 }
+
+template<typename T>
+inline
+void CircularBuffer<T>::push_back(T&& data) noexcept{
+	std::lock_guard<std::mutex> _lck(_mtx);
+	_buff[_head] = std::move(data);
+	_increment_bufferstate();
+}
+
 
 template<typename T>
 inline 
