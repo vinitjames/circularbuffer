@@ -80,6 +80,7 @@ TEST_F(CircularBufferTest, PushAndPopTest){
 		test.push_back(i);
 	EXPECT_EQ(TEST_BUFFER_SIZE, test.size());
 	EXPECT_EQ(test.size(), test.capacity());
+
 	for(int i=0; i<TEST_BUFFER_SIZE - 1; i++)
 		test.pop_front();	
 	EXPECT_EQ(1, test.size());
