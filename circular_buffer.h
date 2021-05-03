@@ -20,13 +20,10 @@ private:
 	typedef const T& const_reference;
 	typedef size_t size_type;
 	typedef ptrdiff_t difference_type;
-	template <bool isConst>
-	struct BufferIterator;
-	typedef BufferIterator<false> iterator;
-	typedef BufferIterator<true> const_iterator;
+	template <bool isConst> struct BufferIterator;
+	
 
 public:
-	
 	explicit CircularBuffer(size_t size)
 		:_buff{std::unique_ptr<T[]>(new value_type[size])}, _max_size{size}{}
 
@@ -104,6 +101,9 @@ public:
 	const_reference at(size_type index) const;
 	reference at(size_type index);
 
+	typedef BufferIterator<false> iterator;
+	typedef BufferIterator<true> const_iterator;
+	
 	iterator begin();
 	const_iterator begin() const;
 	iterator end();
@@ -191,6 +191,7 @@ private:
 			rhsiter._index += n;
 			return rhsiter;
 		}
+		
 
 		BufferIterator& operator+=(difference_type n){
 			_index += n;
@@ -363,8 +364,8 @@ template<typename T>
 inline 
 typename CircularBuffer<T>::reference CircularBuffer<T>::operator[](size_t index) {
 	std::lock_guard<std::mutex> _lck(_mtx);
-	if((index<0)||(index>=_max_size))
-		throw std::out_of_range("Index is out of Range of buffer capacity");
+	if((index<0)||(index>=_size))
+		throw std::out_of_range("Index is out of Range of buffer size");
 	index += _tail;
 	index %= _max_size;
 	return _buff[index];
@@ -374,8 +375,8 @@ template<typename T>
 inline 
 typename CircularBuffer<T>::const_reference CircularBuffer<T>::operator[](size_t index) const {
 	std::lock_guard<std::mutex> _lck(_mtx);
-	if((index<0)||(index>=_max_size))
-		throw std::out_of_range("Index is out of Range of buffer capacity");
+	if((index<0)||(index>=_size))
+		throw std::out_of_range("Index is out of Range of buffer size");
 	index += _tail;
 	index %= _max_size;
 	return _buff[index];
@@ -419,7 +420,7 @@ template<typename T>
 inline 
 typename CircularBuffer<T>::const_iterator CircularBuffer<T>::begin() const{
 	std::lock_guard<std::mutex> _lck(_mtx);
-	iterator iter;
+	const_iterator iter;
 	iter._ptrToBuffer = this;
 	iter._offset = _tail;
 	iter._index = 0;
@@ -443,7 +444,7 @@ template<typename T>
 inline 
 typename CircularBuffer<T>::const_iterator CircularBuffer<T>::end() const{
 	std::lock_guard<std::mutex> _lck(_mtx);
-	iterator iter;
+	const_iterator iter;
 	iter._ptrToBuffer = this;
 	iter._offset = _tail;
 	iter._index = _size;

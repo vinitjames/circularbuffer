@@ -196,6 +196,125 @@ TEST_F(CircularBufferTest, BackTest){
  
 }
 
+TEST_F(CircularBufferTest, AtFunctionTest){
+	// push back & at access for  individual elements
+	test_buff.push_back("string1");
+	test_buff.push_back("string2");
+	EXPECT_EQ(test_buff.size(), 2);
+	EXPECT_EQ(test_buff.at(0), "string1");
+	EXPECT_EQ(test_buff.at(1), "string2");
+	test_buff.at(0) = "string2";
+	test_buff.at(1) = "string1";
+	EXPECT_EQ(test_buff.at(0), "string2");
+	EXPECT_EQ(test_buff.at(1), "string1");
+	//create full buffer
+	for(int i=0; i<TEST_BUFFER_SIZE; i++)
+		test_buff.push_back("string" + std::to_string(i));
+	//test at function for each element
+	for(int i=0; i<TEST_BUFFER_SIZE; i++)
+		EXPECT_EQ(test_buff.at(i), "string" + std::to_string(i));
+	//test assignment with at function for each element
+	for(int i=0; i<TEST_BUFFER_SIZE; i++)
+		test_buff.at(i) = "test_string" ;
+	for(int i=0; i<TEST_BUFFER_SIZE; i++)
+		EXPECT_EQ(test_buff.at(i),"test_string");
+	//test out of bounds
+	try {
+		test_buff.at(TEST_BUFFER_SIZE) = "test_string";
+		FAIL() << "Expected std::out_of_range error";
+	}
+	catch(const std::out_of_range& err){
+		EXPECT_EQ(err.what(), std::string("Index is out of Range of buffer size"));
+	}
+	//test out of size
+	test_buff.pop_front();
+	try {
+		test_buff.at(TEST_BUFFER_SIZE - 1) = "test_string";
+		FAIL() << "Expected std::out_of_range error";
+	}
+	catch(const std::out_of_range& err){
+		EXPECT_EQ(err.what(), std::string("Index is out of Range of buffer size"));
+	}
+}
+
+TEST_F(CircularBufferTest, AccessOperatorTest){
+	// push back & at access for  individual elements
+	test_buff.push_back("string1");
+	test_buff.push_back("string2");
+	EXPECT_EQ(test_buff.size(), 2);
+	EXPECT_EQ(test_buff[0], "string1");
+	EXPECT_EQ(test_buff[1], "string2");
+	test_buff[0] = "string2";
+	test_buff[1] = "string1";
+	EXPECT_EQ(test_buff[0], "string2");
+	EXPECT_EQ(test_buff[1], "string1");
+	//create full buffer
+	for(int i=0; i<TEST_BUFFER_SIZE; i++)
+		test_buff.push_back("string" + std::to_string(i));
+	//test [] operator for each element
+	for(int i=0; i<TEST_BUFFER_SIZE; i++)
+		EXPECT_EQ(test_buff[i], "string" + std::to_string(i));
+	//test assignment with [] operator for each element
+	for(int i=0; i<TEST_BUFFER_SIZE; i++)
+		test_buff[i] = "test_string" ;
+	for(int i=0; i<TEST_BUFFER_SIZE; i++)
+		EXPECT_EQ(test_buff[i],"test_string");
+	//test out of bounds
+	try {
+		test_buff[TEST_BUFFER_SIZE] = "test_string";
+		FAIL() << "Expected std::out_of_range error";
+	}
+	catch(const std::out_of_range& err){
+		EXPECT_EQ(err.what(), std::string("Index is out of Range of buffer size"));
+	}
+	//test out of size
+	test_buff.pop_front();
+	try {
+		test_buff[TEST_BUFFER_SIZE - 1] = "test_string";
+		FAIL() << "Expected std::out_of_range error";
+	}
+	catch(const std::out_of_range& err){
+		EXPECT_EQ(err.what(), std::string("Index is out of Range of buffer size"));
+	}
+}
+
+
+TEST_F(CircularBufferTest, BeginIteratorTest){	
+	//create full buffer
+	for(int i=0; i<TEST_BUFFER_SIZE; i++)
+		test_buff.push_back("string" + std::to_string(i));
+    //test first element with iterator
+	CircularBuffer<std::string>::iterator it = test_buff.begin();
+	EXPECT_EQ(*it, "string0" );
+	//access with begin iterator	
+	for(int i=0; i<TEST_BUFFER_SIZE; i++)
+		EXPECT_EQ(*(it++), "string" + std::to_string(i));
+
+	//access with const begin iterator
+	CircularBuffer<std::string>::const_iterator const_it = test_buff.begin(); 
+	for(int i=0; i<TEST_BUFFER_SIZE; i++)
+		EXPECT_EQ(*(const_it++), "string" + std::to_string(i));
+}
+
+TEST_F(CircularBufferTest, EndIteratorTest){	
+	//create full buffer
+	for(int i=0; i<TEST_BUFFER_SIZE; i++)
+		test_buff.push_back("string" + std::to_string(i));
+    //test last element with iterator
+	CircularBuffer<std::string>::iterator it = test_buff.end();
+	EXPECT_EQ(*(--it), "string99" );
+	//access with begin iterator	
+	for(int i = TEST_BUFFER_SIZE-1; i>=0; i--)
+		EXPECT_EQ(*(it--), "string" + std::to_string(i));
+
+	//access with const begin iterator
+	CircularBuffer<std::string>::const_iterator const_it = test_buff.end(); 
+	for(int i = TEST_BUFFER_SIZE-1; i>=0; i--)
+		EXPECT_EQ(*(--const_it), "string" + std::to_string(i));
+}
+
+
+
 
 
 
