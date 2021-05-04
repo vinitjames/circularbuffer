@@ -269,7 +269,7 @@ template<typename T>
 inline 
 void  CircularBuffer<T>::clear(){
 	std::lock_guard<std::mutex> _lck(_mtx);
-	_head = _tail = _size = _max_size = 0;
+	_head = _tail = _size = 0;
 }
 
 template<typename T>
