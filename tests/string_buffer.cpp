@@ -294,24 +294,61 @@ TEST_F(CircularBufferTest, BeginIteratorTest){
 	CircularBuffer<std::string>::const_iterator const_it = test_buff.begin(); 
 	for(int i=0; i<TEST_BUFFER_SIZE; i++)
 		EXPECT_EQ(*(const_it++), "string" + std::to_string(i));
+	//test out of bounds
+	try {
+		*it = "test_string";
+		FAIL() << "Expected std::out_of_range error";
+	}
+	catch(const std::out_of_range& err){
+		EXPECT_EQ(err.what(), std::string("Index is out of Range of buffer size"));
+	}
+
+	try {
+		std::string out_of_bound = *(const_it);
+		FAIL() << "Expected std::out_of_range error";
+	}
+	catch(const std::out_of_range& err){
+		EXPECT_EQ(err.what(), std::string("Index is out of Range of buffer size"));
+	}
 }
+
 
 TEST_F(CircularBufferTest, EndIteratorTest){	
 	//create full buffer
 	for(int i=0; i<TEST_BUFFER_SIZE; i++)
 		test_buff.push_back("string" + std::to_string(i));
-    //test last element with iterator
-	CircularBuffer<std::string>::iterator it = test_buff.end();
-	EXPECT_EQ(*(--it), "string99" );
-	//access with begin iterator	
-	for(int i = TEST_BUFFER_SIZE-1; i>=0; i--)
-		EXPECT_EQ(*(it--), "string" + std::to_string(i));
 
-	//access with const begin iterator
+	CircularBuffer<std::string>::iterator it = test_buff.end(); 
+	//access with end iterator	
+	for(int i = TEST_BUFFER_SIZE-1; i>=0; i--)
+		EXPECT_EQ(*(--it), "string" + std::to_string(i));
+
+	//access with const end iterator
 	CircularBuffer<std::string>::const_iterator const_it = test_buff.end(); 
 	for(int i = TEST_BUFFER_SIZE-1; i>=0; i--)
 		EXPECT_EQ(*(--const_it), "string" + std::to_string(i));
+
+	//test out of bounds
+	try {
+		*(--it) = "test_string";
+		FAIL() << "Expected std::out_of_range error";
+	}
+	catch(const std::out_of_range& err){
+		EXPECT_EQ(err.what(), std::string("Index is out of Range of buffer size"));
+	}
+
+	try {
+		std::string out_of_bound = *(--const_it);
+		FAIL() << "Expected std::out_of_range error";
+	}
+	catch(const std::out_of_range& err){
+		EXPECT_EQ(err.what(), std::string("Index is out of Range of buffer size"));
+	}
+	
 }
+
+
+
 
 
 
