@@ -108,6 +108,8 @@ public:
 	const_iterator begin() const;
 	iterator end();
 	const_iterator end() const;
+	const_iterator cbegin() const noexcept;
+	const_iterator cend() const noexcept;
 		
 private:
 	void _increment_bufferstate();
@@ -127,14 +129,15 @@ private:
 		typedef std::random_access_iterator_tag iterator_type;
 		typedef typename std::conditional<isConst, const value_type&, value_type&>::type reference;
 		typedef typename std::conditional<isConst, const value_type*, value_type*>::type pointer;
-		typedef CircularBuffer*  cbuf_pointer;
+		typedef typename std::conditional<isConst, const CircularBuffer<value_type>*,
+										  CircularBuffer<value_type>*>::type cbuf_pointer;
 		
 		cbuf_pointer _ptrToBuffer;
 		size_type _offset;
 		size_type _index;
 		bool _reverse;
 
-		bool _comparable(const BufferIterator& other){
+		bool _comparable(const BufferIterator<isConst>& other) const{
 			return (_ptrToBuffer == other._ptrToBuffer)&&(_reverse == other._reverse);
 		}
 		
@@ -208,37 +211,37 @@ private:
 			return *this;
 		}
 
-		bool operator==(const BufferIterator& other){
+		bool operator==(const BufferIterator& other) const{
 			if (!_comparable(other))
 				return false;
 			return ((_index == other._index)&&(_offset == other._offset));
 		}
 		
-		bool operator!=(const BufferIterator& other){
+		bool operator!=(const BufferIterator& other) const{
 			if (!_comparable(other))
 				return true;
 			return ((_index != other._index)||(_offset != other._offset));
 		}
 
-		bool operator<(const BufferIterator& other){
+		bool operator<(const BufferIterator& other) const {
 			if (!_comparable(other))
 				return false;
 			return ((_index + _offset)<(other._index+other._offset));
 		}
 
-		bool operator>(const BufferIterator& other){
+		bool operator>(const BufferIterator& other) const{
 			if (!_comparable(other))
 				return false;
 			return ((_index + _offset)>(other._index+other._offset));
 		}
 
-		bool operator<=(const BufferIterator& other){
+		bool operator<=(const BufferIterator& other) const {
 			if (!_comparable(other))
 				return false;
 			return ((_index + _offset)<=(other._index+other._offset));
 		}
 
-		bool operator>=(const BufferIterator& other){
+		bool operator>=(const BufferIterator& other) const {
 			if (!_comparable(other))
 				return false;
 			return ((_index + _offset)>=(other._index+other._offset));
@@ -452,4 +455,27 @@ typename CircularBuffer<T>::const_iterator CircularBuffer<T>::end() const{
 	return iter;
 }
 
+template<typename T>
+inline 
+typename CircularBuffer<T>::const_iterator CircularBuffer<T>::cbegin() const noexcept{
+	std::lock_guard<std::mutex> _lck(_mtx);
+	const_iterator iter;
+	iter._ptrToBuffer = this;
+	iter._offset = _tail;
+	iter._index = 0;
+	iter._reverse = false;
+	return iter;
+}
+
+template<typename T>
+inline 
+typename CircularBuffer<T>::const_iterator CircularBuffer<T>::cend() const noexcept{
+	std::lock_guard<std::mutex> _lck(_mtx);
+	const_iterator iter;
+	iter._ptrToBuffer = this;
+	iter._offset = _tail;
+	iter._index = _size;
+	iter._reverse = false;
+	return iter;
+}
 #endif /* CIRCULAR_BUFFER_H */

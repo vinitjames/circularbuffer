@@ -316,6 +316,25 @@ TEST_F(CircularBufferTest, BeginIteratorTest){
 	}
 }
 
+TEST_F(CircularBufferTest, CbeginIteratorTest){	
+	//create full buffer
+	for(int i=0; i<TEST_BUFFER_SIZE; i++)
+		test_buff.push_back("string" + std::to_string(i));
+    //test first element with iterator
+	CircularBuffer<std::string>::const_iterator const_it = test_buff.cbegin();
+	EXPECT_EQ(*const_it, "string0" );
+	//access with begin iterator	
+	for(int i=0; i<TEST_BUFFER_SIZE; i++)
+		EXPECT_EQ(*(const_it++), "string" + std::to_string(i));
+	
+	try {
+		std::string out_of_bound = *(const_it);
+		FAIL() << "Expected std::out_of_range error";
+	}
+	catch(const std::out_of_range& err){
+		EXPECT_EQ(err.what(), std::string("Index is out of Range of buffer size"));
+	}
+	}
 
 TEST_F(CircularBufferTest, EndIteratorTest){	
 	//create full buffer
@@ -348,8 +367,27 @@ TEST_F(CircularBufferTest, EndIteratorTest){
 	catch(const std::out_of_range& err){
 		EXPECT_EQ(err.what(), std::string("Index is out of Range of buffer size"));
 	}
-	
 }
+
+TEST_F(CircularBufferTest, CendIteratorTest){	
+	//create full buffer
+	for(int i=0; i<TEST_BUFFER_SIZE; i++)
+		test_buff.push_back("string" + std::to_string(i));
+
+	CircularBuffer<std::string>::const_iterator const_it = test_buff.cend(); 
+	//access with end iterator	
+	for(int i = TEST_BUFFER_SIZE-1; i>=0; i--)
+		EXPECT_EQ(*(--const_it), "string" + std::to_string(i));
+
+	try {
+		std::string out_of_bound = *(--const_it);
+		FAIL() << "Expected std::out_of_range error";
+	}
+	catch(const std::out_of_range& err){
+		EXPECT_EQ(err.what(), std::string("Index is out of Range of buffer size"));
+	}	
+}
+
 
 TEST_F(CircularBufferTest, IteratorBasedLoopTest){	
 	//create full buffer
@@ -368,6 +406,7 @@ TEST_F(CircularBufferTest, IteratorBasedLoopTest){
 		EXPECT_EQ(*it, "string" + std::to_string(i++));
 	//test size with increment variable
 	EXPECT_EQ(i, TEST_BUFFER_SIZE/2);
+	
 
 }
 
@@ -395,6 +434,7 @@ TEST_F(CircularBufferTest, RangeBasedLoopTest){
 		EXPECT_EQ(buff_elem, "string" + std::to_string(i++));
 	EXPECT_EQ(i, TEST_BUFFER_SIZE - REDUCE_SIZE);
 }
+
 
 
 
