@@ -242,7 +242,7 @@ TEST_F(CircularBufferTest, AtFunctionTest){
 }
 
 TEST_F(CircularBufferTest, AccessOperatorTest){
-	// push back & at access for  individual elements
+	// push back & [] access for  individual elements
 	test_buff.push_back("string1");
 	test_buff.push_back("string2");
 	EXPECT_EQ(test_buff.size(), 2);
@@ -389,51 +389,7 @@ TEST_F(CircularBufferTest, CendIteratorTest){
 }
 
 
-TEST_F(CircularBufferTest, IteratorBasedLoopTest){	
-	//create full buffer
-	for(int i=0; i<TEST_BUFFER_SIZE; i++)
-		test_buff.push_back("string" + std::to_string(i));
-    int i = 0;
-	for(auto it = test_buff.begin(); it!=test_buff.end(); it++)
-		EXPECT_EQ(*it, "string" + std::to_string(i++));
-	//partially fill buffers
-	test_buff.clear();
-	for(int i=0; i<TEST_BUFFER_SIZE/2; i++)
-		test_buff.push_back("string" + std::to_string(i));
-	//test begin and end on partially full buffer
-	i = 0;
-	for(auto it = test_buff.begin(); it!=test_buff.end(); it++)
-		EXPECT_EQ(*it, "string" + std::to_string(i++));
-	//test size with increment variable
-	EXPECT_EQ(i, TEST_BUFFER_SIZE/2);
-	
 
-}
-
-TEST_F(CircularBufferTest, RangeBasedLoopTest){	
-	//create full buffer
-	for(int i=0; i<TEST_BUFFER_SIZE; i++)
-		test_buff.push_back("string" + std::to_string(i));
-	int i = 0;
-	//copied elements 
-    for(auto buff_elem : test_buff)
-		EXPECT_EQ(buff_elem, "string" + std::to_string(i++));
-	//auto reference
-	i = 0;
-    for(auto& buff_elem : test_buff)
-		EXPECT_EQ(buff_elem, "string" + std::to_string(i++));	
-	//auto const reference
-	i = 0;
-    for(const auto& buff_elem : test_buff)
-		EXPECT_EQ(buff_elem, "string" + std::to_string(i++));
-	//check iterators after modifications
-	for(int i = 0; i<REDUCE_SIZE; i++)
-		test_buff.pop_front();
-	i = 0;
-    for(const auto& buff_elem : test_buff)
-		EXPECT_EQ(buff_elem, "string" + std::to_string(i++));
-	EXPECT_EQ(i, TEST_BUFFER_SIZE - REDUCE_SIZE);
-}
 
 
 
