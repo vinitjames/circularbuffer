@@ -5,7 +5,6 @@
 #include <mutex>
 #include <memory>
 #include <iterator>
-#include <type_traits>
 #include <algorithm>
 #include <utility>
 
@@ -20,7 +19,7 @@ private:
 	typedef const T& const_reference;
 	typedef size_t size_type;
 	typedef ptrdiff_t difference_type;
-	template <bool isConst> struct BufferIterator;
+    template <bool isConst> struct BufferIterator;
 	
 
 public:
@@ -80,7 +79,7 @@ public:
 		}
 		return *this;
 	}
-
+	
 	void push_back(const value_type& data);
 	void push_back(value_type&& data) noexcept;
 	void pop_front();
@@ -116,31 +115,33 @@ private:
 	void _decrement_bufferstate();
 	mutable std::mutex _mtx;
 	std::unique_ptr<value_type[]> _buff;
-
 	size_type _head = 0;
 	size_type _tail = 0;
 	size_type _size = 0;
 	size_type _max_size = 0;
-		
+			
     template<bool isConst = false>
 	struct  BufferIterator{
 	public:
-		
-		typedef std::random_access_iterator_tag iterator_type;
+		friend class CircularBuffer<T>;
+		typedef std::random_access_iterator_tag iterator_category;
+		typedef ptrdiff_t difference_type;
+		typedef T value_type;
 		typedef typename std::conditional<isConst, const value_type&, value_type&>::type reference;
 		typedef typename std::conditional<isConst, const value_type*, value_type*>::type pointer;
 		typedef typename std::conditional<isConst, const CircularBuffer<value_type>*,
 										  CircularBuffer<value_type>*>::type cbuf_pointer;
-		
+	private:
 		cbuf_pointer _ptrToBuffer;
 		size_type _offset;
 		size_type _index;
 		bool _reverse;
-
+		
 		bool _comparable(const BufferIterator<isConst>& other) const{
 			return (_ptrToBuffer == other._ptrToBuffer)&&(_reverse == other._reverse);
 		}
 		
+	public:
 		BufferIterator()
 			:_ptrToBuffer{nullptr}, _offset{0}, _index{0}, _reverse{false}{}
 		
@@ -159,8 +160,9 @@ private:
 		pointer  operator->() { return &(operator*()); }
 
 		reference operator[](size_type index){
-			this->_index += index;
-			return this->operator*();
+			BufferIterator iter = *this;
+			iter._index += index;
+			return *iter;
 		}
 
 		BufferIterator& operator++(){
@@ -206,6 +208,11 @@ private:
 			return lhsiter;
 		}
 
+		friend difference_type operator-(const BufferIterator& lhsiter, const BufferIterator& rhsiter){
+			
+			return lhsiter._index - rhsiter._index;
+		}
+
 		BufferIterator& operator-=(difference_type n){
 			_index -= n;
 			return *this;
@@ -246,7 +253,6 @@ private:
 				return false;
 			return ((_index + _offset)>=(other._index+other._offset));
 		}
-		
 	};
 };
 
