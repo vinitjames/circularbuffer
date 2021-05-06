@@ -316,6 +316,38 @@ TEST_F(CircularBufferTest, BeginIteratorTest){
 	}
 }
 
+TEST_F(CircularBufferTest, RbeginIteratorTest){	
+	//create full buffer
+	for(int i=0; i<TEST_BUFFER_SIZE; i++)
+		test_buff.push_back("string" + std::to_string(i));
+    //test first element with iterator
+	CircularBuffer<std::string>::iterator it = test_buff.rbegin();
+	//access with rbegin iterator	
+	for(int i=TEST_BUFFER_SIZE-1; i>=0; i--)
+		EXPECT_EQ(*(it++), "string" + std::to_string(i));
+
+	//access with const begin iterator
+	CircularBuffer<std::string>::const_iterator const_it = test_buff.rbegin(); 
+	for(int i=TEST_BUFFER_SIZE - 1; i>=0;  i--)
+		EXPECT_EQ(*(const_it++), "string" + std::to_string(i));
+	//test out of bounds
+	try {
+		*it = "test_string";
+		FAIL() << "Expected std::out_of_range error";
+	}
+	catch(const std::out_of_range& err){
+		EXPECT_EQ(err.what(), std::string("Index is out of Range of buffer size"));
+	}
+
+	try {
+		std::string out_of_bound = *(const_it);
+		FAIL() << "Expected std::out_of_range error";
+	}
+	catch(const std::out_of_range& err){
+		EXPECT_EQ(err.what(), std::string("Index is out of Range of buffer size"));
+		}
+}
+
 TEST_F(CircularBufferTest, CbeginIteratorTest){	
 	//create full buffer
 	for(int i=0; i<TEST_BUFFER_SIZE; i++)
@@ -334,7 +366,8 @@ TEST_F(CircularBufferTest, CbeginIteratorTest){
 	catch(const std::out_of_range& err){
 		EXPECT_EQ(err.what(), std::string("Index is out of Range of buffer size"));
 	}
-	}
+}
+
 
 TEST_F(CircularBufferTest, EndIteratorTest){	
 	//create full buffer
@@ -368,6 +401,39 @@ TEST_F(CircularBufferTest, EndIteratorTest){
 		EXPECT_EQ(err.what(), std::string("Index is out of Range of buffer size"));
 	}
 }
+
+TEST_F(CircularBufferTest, RendIteratorTest){	
+	//create full buffer
+	for(int i=0; i<TEST_BUFFER_SIZE; i++)
+		test_buff.push_back("string" + std::to_string(i));
+    //test first element with iterator
+	CircularBuffer<std::string>::iterator it = test_buff.rend() - 1;
+	//access with rbegin iterator	
+	for(int i=0; i<TEST_BUFFER_SIZE; i++)
+		EXPECT_EQ(*(it--), "string" + std::to_string(i));
+
+	//access with const begin iterator
+	CircularBuffer<std::string>::const_iterator const_it = test_buff.rend() - 1; 
+	for(int i=0; i<TEST_BUFFER_SIZE; i++)
+		EXPECT_EQ(*(const_it--), "string" + std::to_string(i));
+	//test out of bounds
+	try {
+		*it = "test_string";
+		FAIL() << "Expected std::out_of_range error";
+	}
+	catch(const std::out_of_range& err){
+		EXPECT_EQ(err.what(), std::string("Index is out of Range of buffer size"));
+	}
+
+	try {
+		std::string out_of_bound = *(const_it);
+		FAIL() << "Expected std::out_of_range error";
+	}
+	catch(const std::out_of_range& err){
+		EXPECT_EQ(err.what(), std::string("Index is out of Range of buffer size"));
+		}
+}
+
 
 TEST_F(CircularBufferTest, CendIteratorTest){	
 	//create full buffer

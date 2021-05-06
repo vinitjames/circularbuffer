@@ -109,6 +109,11 @@ public:
 	const_iterator end() const;
 	const_iterator cbegin() const noexcept;
 	const_iterator cend() const noexcept;
+	iterator rbegin() noexcept;
+	const_iterator rbegin() const noexcept;
+	iterator rend() noexcept;
+	const_iterator rend() const noexcept;
+	
 		
 private:
 	void _increment_bufferstate();
@@ -153,7 +158,7 @@ private:
 
 		reference operator*(){
 			if(_reverse)
-				return (*_ptrToBuffer)[(_ptrToBuffer->size() - _index)];
+				return (*_ptrToBuffer)[(_ptrToBuffer->size() - _index - 1)];
 			return (*_ptrToBuffer)[_index];
 		}
 
@@ -484,4 +489,53 @@ typename CircularBuffer<T>::const_iterator CircularBuffer<T>::cend() const noexc
 	iter._reverse = false;
 	return iter;
 }
+
+template<typename T>
+inline 
+typename CircularBuffer<T>::iterator CircularBuffer<T>::rbegin() noexcept{
+	std::lock_guard<std::mutex> _lck(_mtx);
+	iterator iter;
+	iter._ptrToBuffer = this;
+	iter._offset = _tail;
+	iter._index = 0;
+	iter._reverse = true;
+	return iter;
+}
+
+template<typename T>
+inline 
+typename CircularBuffer<T>::const_iterator CircularBuffer<T>::rbegin() const noexcept{
+	std::lock_guard<std::mutex> _lck(_mtx);
+	const_iterator iter;
+	iter._ptrToBuffer = this;
+	iter._offset = _tail;
+	iter._index = 0;
+	iter._reverse = true;
+	return iter;
+}
+
+template<typename T>
+inline 
+typename CircularBuffer<T>::iterator CircularBuffer<T>::rend()  noexcept{
+	std::lock_guard<std::mutex> _lck(_mtx);
+	iterator iter;
+	iter._ptrToBuffer = this;
+	iter._offset = _tail;
+	iter._index = _size;
+	iter._reverse = true;
+	return iter;
+}
+
+template<typename T>
+inline 
+typename CircularBuffer<T>::const_iterator CircularBuffer<T>::rend() const noexcept{
+	std::lock_guard<std::mutex> _lck(_mtx);
+	const_iterator iter;
+	iter._ptrToBuffer = this;
+	iter._offset = _tail;
+	iter._index = _size;
+	iter._reverse = true;
+	return iter;
+}
+
 #endif /* CIRCULAR_BUFFER_H */
