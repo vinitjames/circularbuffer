@@ -124,7 +124,7 @@ private:
 	struct  BufferIterator{
 	public:
 		friend class CircularBuffer<T>;
-		typedef std::forward_iterator_tag iterator_category;
+		typedef std::random_access_iterator_tag iterator_category;
 		typedef ptrdiff_t difference_type;
 		typedef T value_type;
 		typedef typename std::conditional<isConst, const value_type&, value_type&>::type reference;
@@ -160,8 +160,9 @@ private:
 		pointer  operator->() { return &(operator*()); }
 
 		reference operator[](size_type index){
-			this->_index += index;
-			return this->operator*();
+			BufferIterator iter = *this;
+			iter._index += index;
+			return *iter;
 		}
 
 		BufferIterator& operator++(){
@@ -205,6 +206,11 @@ private:
 		friend BufferIterator operator-(BufferIterator lhsiter, difference_type n){
 			lhsiter._index -= n;
 			return lhsiter;
+		}
+
+		friend difference_type operator-(const BufferIterator& lhsiter, const BufferIterator& rhsiter){
+			
+			return lhsiter._index - rhsiter._index;
 		}
 
 		BufferIterator& operator-=(difference_type n){
