@@ -3,7 +3,7 @@ from conans import ConanFile, CMake
 
 class CircularBufferConan(ConanFile):
     name = "circular_buffer"
-    version = "0.0.1"
+    version = "0.1.0"
     license = "MIT License"
     author = "vinit james  vinit.james24@gmail.com"
     url = "https://github.com/vinitjames/circularbuffer"

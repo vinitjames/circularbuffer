@@ -33,9 +33,23 @@ add_subdirectory(${CMAKE_CURRENT_BINARY_DIR}/googletest-src
                  ${CMAKE_CURRENT_BINARY_DIR}/googletest-build
 				 EXCLUDE_FROM_ALL)
 				 
-add_executable(circularbuffer_int circularbuffer_int.cpp)
-target_link_libraries(circularbuffer_int
+add_executable(simple_int_test simple_int_test.cpp)
+target_link_libraries(simple_int_test
 					  circularbuffer
 					  gtest_main
 					  )
-add_test(NAME test_circularbuffer_int COMMAND circularbuffer_int)
+add_test(NAME simple_int_test COMMAND simple_int_test)
+
+add_executable(member_func_test member_func_test.cpp)
+target_link_libraries(member_func_test
+					  circularbuffer
+					  gtest_main
+					  )
+add_test(NAME member_func_test COMMAND member_func_test)
+
+add_executable(iterator_test iterator_test.cpp)
+target_link_libraries(iterator_test
+					  circularbuffer
+					  gtest_main
+					  )
+add_test(NAME iterator_test COMMAND iterator_test)
