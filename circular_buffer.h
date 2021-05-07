@@ -1,12 +1,13 @@
 #ifndef CIRCULAR_BUFFER_H
 #define CIRCULAR_BUFFER_H
 
-#include <iostream>
+#include <algorithm>
+#include <iterator>
 #include <mutex>
 #include <memory>
-#include <iterator>
-#include <algorithm>
+#include <stdexcept>
 #include <utility>
+
 
 template<typename T>
 class CircularBuffer {
