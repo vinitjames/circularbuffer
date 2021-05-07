@@ -1,7 +1,6 @@
 #include "circular_buffer.h"
 #include <algorithm>
-#include <iostream>
-#include <string.h>
+#include <string>
 #include <utility>
 #include "gtest/gtest.h"
 
@@ -33,6 +32,23 @@ TEST_F(CircularBufferTest, IteratorBasedLoopTest){
 		EXPECT_EQ(*it, "string" + std::to_string(i++));
 	//test size with increment variable
 	EXPECT_EQ(i, TEST_BUFFER_SIZE/2);
+}
+
+TEST_F(CircularBufferTest, ReverseIteratorBasedLoopTest){	
+	//create full buffer
+	for(int i=0; i<TEST_BUFFER_SIZE; i++)
+		test_str_buff.push_back("string" + std::to_string(i));
+    int i = 99;
+	for(auto it = test_str_buff.rbegin(); it!=test_str_buff.rend(); it++)
+		EXPECT_EQ(*it, "string" + std::to_string(i--));
+	//partially fill buffers
+	test_str_buff.clear();
+	for(int i=0; i<TEST_BUFFER_SIZE/2; i++)
+		test_str_buff.push_back("string" + std::to_string(i));
+	//test begin and end on partially full buffer
+	i = TEST_BUFFER_SIZE/2 - 1;
+	for(auto it = test_str_buff.rbegin(); it!=test_str_buff.rend(); it++)
+		EXPECT_EQ(*it, "string" + std::to_string(i--));
 }
 
 TEST_F(CircularBufferTest, RangeBasedLoopTest){	
@@ -79,7 +95,8 @@ TEST_F(CircularBufferTest, ForEachTest){
 	//create full buffer
 	for(int i=0; i<TEST_BUFFER_SIZE; i++)
 		test_str_buff.push_back("string" + std::to_string(i));
-	std::for_each(test_str_buff.begin(), test_str_buff.end(), [](std::string& elem){ elem = elem + "modified";});
+	std::for_each(test_str_buff.begin(), test_str_buff.end(), [](std::string& elem){
+		elem = elem + "modified";});
 	int i=0;
 	for(const auto& elem: test_str_buff)
 		EXPECT_EQ(elem, "string" + std::to_string(i++) + "modified");	
