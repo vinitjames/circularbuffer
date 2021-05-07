@@ -1,5 +1,4 @@
 #include "circular_buffer.h"
-#include <iostream>
 #include <string.h>
 #include <utility>
 #include "gtest/gtest.h"
