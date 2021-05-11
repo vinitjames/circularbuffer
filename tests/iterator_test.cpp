@@ -5,7 +5,7 @@
 #include "gtest/gtest.h"
 
 #define TEST_BUFFER_SIZE 100
-#define REDUCE_SIZE 100
+#define REDUCE_SIZE 50
 
 class CircularBufferTest : public ::testing::Test{
 	
@@ -70,10 +70,9 @@ TEST_F(CircularBufferTest, RangeBasedLoopTest){
 	//check iterators after modifications
 	for(int i = 0; i<REDUCE_SIZE; i++)
 		test_str_buff.pop_front();
-	i = 0;
+	i = TEST_BUFFER_SIZE - REDUCE_SIZE;
     for(const auto& buff_elem : test_str_buff)
 		EXPECT_EQ(buff_elem, "string" + std::to_string(i++));
-	EXPECT_EQ(i, TEST_BUFFER_SIZE - REDUCE_SIZE);
 }
 
 TEST_F(CircularBufferTest, FindTest){	
@@ -110,6 +109,27 @@ TEST_F(CircularBufferTest, SortTest){
 	int i = 99;
 	for(const auto& elem: test_int_buff)
 		EXPECT_EQ(elem, i--);
+}
+
+TEST_F(CircularBufferTest, CopyUsingIterator){	
+	//create full buffer
+	for(int i=0; i<TEST_BUFFER_SIZE; i++)
+		test_str_buff.push_back("string" + std::to_string(i));
+	std::vector<std::string> buffer_copy;
+	buffer_copy.reserve(test_str_buff.size());
+	std::copy(test_str_buff.begin(), test_str_buff.end(), std::back_inserter(buffer_copy));
+	int i = 0;
+	for(const auto& elem: test_str_buff)
+		EXPECT_EQ(elem, buffer_copy[i++]);
+	buffer_copy.clear();
+	//remove elements from  buffer
+	for(int i=0; i<REDUCE_SIZE; i++)
+		test_str_buff.pop_front();
+	std::copy(test_str_buff.begin(), test_str_buff.end(), std::back_inserter(buffer_copy));
+	i = 0;
+	for(const auto& elem: test_str_buff)
+		EXPECT_EQ(elem, buffer_copy[i++]);
+	
 }
 
 
