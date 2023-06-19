@@ -13,7 +13,6 @@ template<typename T>
 class CircularBuffer {
 private:
 	
-	typedef T value_type;
 	typedef T* pointer;
 	typedef const T* const_pointer;
 	typedef T& reference;
@@ -24,6 +23,8 @@ private:
 	
 
 public:
+    typedef T value_type;
+
 	explicit CircularBuffer(size_t size)
 		:_buff{std::unique_ptr<T[]>(new value_type[size])}, _max_size{size}{}
 
