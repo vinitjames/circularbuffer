@@ -85,7 +85,7 @@ public:
 	void push_back(const value_type& data);
 	void push_back(value_type&& data) noexcept;
 	void pop_front();
-    void pop_front(size_t count);
+	void pop_front(size_t count);
 	reference front();
 	reference back(); 
 	const_reference front() const; 
@@ -120,7 +120,7 @@ public:
 		
 private:
 	void _increment_bufferstate();
-    void _decrement_bufferstate(size_t count);
+	void _decrement_bufferstate(size_t count);
 	mutable std::mutex _mtx;
 	std::unique_ptr<value_type[]> _buff;
 	size_type _head = 0;
