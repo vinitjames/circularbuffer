@@ -148,6 +148,34 @@ TEST_F(CircularBufferTest, PopFrontTest){
 }
 
 
+TEST_F(CircularBufferTest, MultiPopFrontTest){
+	// push back & pop individual elements
+	test_buff.push_back("string1");
+	test_buff.push_back("string2");
+	test_buff.push_back("string3");
+	EXPECT_EQ(test_buff.size(), 3);
+	test_buff.pop_front(2);	
+	EXPECT_EQ(test_buff.size(), 1);
+	EXPECT_EQ(test_buff.front(), "string3");
+
+	//create full buffer
+	for(int i=0; i<TEST_BUFFER_SIZE; i++)
+		test_buff.push_back("string" + std::to_string(i));
+	//pop all elements
+	test_buff.pop_front(TEST_BUFFER_SIZE);
+	EXPECT_TRUE(test_buff.empty());
+	EXPECT_EQ(test_buff.size(), 0);
+	//try pop on empty buffer
+	try {
+		test_buff.pop_front(10);
+		FAIL() << "Expected std::length_error";
+	}
+	catch(const std::length_error& err){
+		EXPECT_EQ(err.what(), std::string("pop_front called on empty buffer"));
+	}
+}
+
+
 TEST_F(CircularBufferTest, FrontTest){
 	// push back & front for  individual elements
 	test_buff.push_back("string1");
