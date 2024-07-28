@@ -85,6 +85,7 @@ public:
 	void push_back(const value_type& data);
 	void push_back(value_type&& data) noexcept;
 	void pop_front();
+	void pop_back();
 	reference front();
 	reference back(); 
 	const_reference front() const; 
@@ -120,6 +121,7 @@ public:
 private:
 	void _increment_bufferstate();
 	void _decrement_bufferstate();
+	void _decrement_bufferstate_r();
 	mutable std::mutex _mtx;
 	std::unique_ptr<value_type[]> _buff;
 	size_type _head = 0;
@@ -370,10 +372,28 @@ void CircularBuffer<T>::pop_front(){
 }
 
 template<typename T>
+inline
+void CircularBuffer<T>::pop_back() {
+    std::lock_guard<std::mutex> _lck(_mtx);
+    if (empty())
+        throw std::length_error("pop_back called on empty buffer");
+    _decrement_bufferstate_r();
+    
+}
+
+template<typename T>
 inline 
 void CircularBuffer<T>::_decrement_bufferstate(){
 	--_size;
 	_tail = (_tail + 1)%_max_size;
+}
+
+template<typename T>
+inline
+void CircularBuffer<T>::_decrement_bufferstate_r() {
+    --_size;
+    if (!_head) _head = _max_size;
+    _head--;
 }
 
 template<typename T>
